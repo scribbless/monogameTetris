@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -62,6 +63,50 @@ namespace MonogameTetris.TetrisLib
             }
 
             return lines;
+        }
+
+        public int[,] ClearRow(int[,] boardArray, int row)
+        {
+            int[,] blankArray = new int[10, 20];
+            
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    blankArray[j, i + 1] = boardArray[j, i];
+                }
+            }
+
+            for (int i = row + 1; i < 20; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    blankArray[j, i] = boardArray[j, i];
+                }
+            }
+
+            return blankArray;
+        }
+
+        public void DrawQueue(List<int> queue, Vector2 position, int tileSize, int boardPadding,
+            SpriteBatch spriteBatch, Dictionary<int, Color> colorDict, Texture2D squareTexture, PieceDictionary pieceDictionary)
+        {
+            for (int k = 0; k < 5; k++)
+            {
+                var tet = pieceDictionary.GetTet(queue[k], 1);
+                for (int i = 0; i < Math.Sqrt(tet.Length); i++)
+                {
+                    for (int j = 0; j < Math.Sqrt(tet.Length); j++)
+                    {
+                        //dont draw blank tiles
+                        if (tet[i,j] != 0)
+                        {
+                            var rectPos = new Vector2(position.X + ((i + 1) * tileSize) + tileSize + (boardPadding * (i+1)), position.Y + (((j + 1) + (k * 4)) * tileSize) + tileSize + (boardPadding * (j+1)));
+                            spriteBatch.Draw(squareTexture, rectPos, colorDict[tet[i, j]]);
+                        }
+                    }
+                }
+            }
         }
     }
 }

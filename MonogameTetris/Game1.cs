@@ -42,6 +42,8 @@ namespace MonogameTetris
         private double _startTime;
         private double _currentTime;
         private double _lastTime;
+        private int heldPiece;
+        private int hasHeld = 0;
 
         public Game1()
         {
@@ -176,6 +178,7 @@ namespace MonogameTetris
                 }
             } else if (_inputLib.IsNewPress(Keys.Space))
             {
+                hasHeld = 0;
                 _activePiece.HardDrop(_staticBoardArray);
                 
                 _staticBoardArray = _activePiece.ReturnLockedInBoard(_staticBoardArray);
@@ -198,11 +201,60 @@ namespace MonogameTetris
 
                 _rotateCount = 0;
                 _touchingGroundCheck1 = false;
+                
+                foreach (var line in _tetrisUtil.CheckLines(_staticBoardArray))
+                {
+                    _staticBoardArray = _tetrisUtil.ClearRow(_staticBoardArray, line);
+                }
             } else if (_inputLib.RepeatPress(Keys.Down, _repeatTime, _lastTime, _currentTime))
             {
                 _lastTime = _currentTime;
                 _activePiece.MoveDown(_staticBoardArray);
                 //touchingGrouncCheck1 = true;
+            } else if (_inputLib.IsNewPress(Keys.C))
+            {
+                if (hasHeld == 0)
+                {
+                    hasHeld = 1;
+
+                    if (heldPiece == 0)
+                    {
+                        heldPiece = _activePiece.pieceType;
+                        _masterPieceQueue.RemoveAt(0);
+                        if (_masterPieceQueue[0] == 2)
+                        {
+                            _activePiece.ResetPiece(_masterPieceQueue[0], 4);
+                        }
+                        else
+                        {
+                            _activePiece.ResetPiece(_masterPieceQueue[0], 3);
+                        }
+
+                        //refill queue
+                        if (_masterPieceQueue.Count <= 7)
+                        {
+                            _pieceQueuePart.Shuffle();
+                            _masterPieceQueue.AddRange(_pieceQueuePart);
+                        }
+                    }
+                    else
+                    {
+                        int pieceTemp = _activePiece.pieceType;
+                        if (heldPiece == 2)
+                        {
+                            _activePiece.ResetPiece(heldPiece, 4);
+                        }
+                        else
+                        {
+                            _activePiece.ResetPiece(heldPiece, 3);
+                        }
+
+                        heldPiece = pieceTemp;
+                    }
+                    
+                    _rotateCount = 0;
+                    _touchingGroundCheck1 = false;
+                }
             }
 
             //gravity
@@ -221,6 +273,7 @@ namespace MonogameTetris
                     }
                     else
                     {
+                        hasHeld = 0;
                         _staticBoardArray = _activePiece.ReturnLockedInBoard(_staticBoardArray);
                         if (_masterPieceQueue[0] == 2)
                         {
@@ -241,6 +294,11 @@ namespace MonogameTetris
 
                         _rotateCount = 0;
                         _touchingGroundCheck1 = false;
+
+                        foreach (var line in _tetrisUtil.CheckLines(_staticBoardArray))
+                        {
+                            _staticBoardArray = _tetrisUtil.ClearRow(_staticBoardArray, line);
+                        }
                     }
                 }
                 else
@@ -267,6 +325,7 @@ namespace MonogameTetris
 
             _tetrisUtil.DrawBoard(_boardSize.x, _boardSize.y, 100, 100, _tileSize, _boardPadding, _spriteBatch, _colorDict, _boardArray, _squareTexture);
             
+            _tetrisUtil.DrawQueue(_masterPieceQueue, new Vector2(400, 100), _tileSize, _boardPadding, _spriteBatch, _colorDict, _squareTexture, new PieceDictionary());
             
             //FPS COUNTER
             /*
@@ -275,6 +334,8 @@ namespace MonogameTetris
             var fps = string.Format("FPS: {0}", _frameCounter.AverageFramesPerSecond);
             _spriteBatch.DrawString(font, fps, new Vector2(1, 1), Color.Black);
             */
+            
+            _spriteBatch.DrawString(_font, heldPiece.ToString(), new Vector2(1, 1), Color.Black);
 
             // Finds the center of the string in coordinates inside the text rectangle
             Vector2 textMiddlePoint = _font.MeasureString(_testText) / 2;
