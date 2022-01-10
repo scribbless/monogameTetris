@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -31,6 +32,19 @@ namespace MonogameTetris.TetrisLib
             {
                 if (pieceShape[i, j] == 0) continue;
                 boardArray1[piece.CurrentLocation.x + j, piece.CurrentLocation.y + i] = pieceShape[i, j];
+            }
+
+            return boardArray1;
+        }
+        
+        public int[,] ReturnBoardWithGhostPiece(int[,] boardArray1, ActivePiece piece)
+        {
+            var pieceShape = _pieceDictionary.GetTet(piece.pieceType, piece.rotState);
+            for (var i = 0; i < piece.sideLength; i++)
+            for (var j = 0; j < piece.sideLength; j++)
+            {
+                if (pieceShape[i, j] == 0) continue;
+                boardArray1[piece.CurrentLocation.x + j, piece.CurrentLocation.y + i] = pieceShape[i, j] * 10;
             }
 
             return boardArray1;
@@ -74,6 +88,27 @@ namespace MonogameTetris.TetrisLib
             return blankArray;
         }
 
+        public int ClearLines(ref int[,] boardArray, int[,] staticBoardArray, int backToBack, bool lastMoveIsSpin)
+        {
+            var lines = CheckLines(boardArray);
+            
+            //
+            int garbageSent = 0;
+            
+            //clear lines
+            boardArray = lines.Aggregate(boardArray, ClearRow);
+
+            //if single clear or below then don't send any garbage
+            if (lines.Count <= 1)
+            {
+                if (lines.Count == 2) garbageSent = 1;
+                else if (lines.Count == 3) garbageSent = 2;
+                else if (lines.Count == 4) garbageSent = 4;
+            }
+
+            return garbageSent;
+        }
+
         //draw queue
         public void DrawQueue(List<int> queue, Vector2 position, int tileSize, int boardPadding,
             SpriteBatch spriteBatch, Dictionary<int, Color> colorDict, Texture2D squareTexture,
@@ -81,14 +116,14 @@ namespace MonogameTetris.TetrisLib
         {
             for (var k = 0; k < 5; k++)
             {
-                var tet = pieceDictionary.GetTet(queue[k], 1);
+                var tet = pieceDictionary.GetTet(queue[k], 0);
                 for (var i = 0; i < Math.Sqrt(tet.Length); i++)
                 for (var j = 0; j < Math.Sqrt(tet.Length); j++)
                     //dont draw blank tiles
                     if (tet[i, j] != 0)
                     {
-                        var rectPos = new Vector2(position.X + (i + 1) * tileSize + tileSize + boardPadding * (i + 1),
-                            position.Y + (j + 1 + k * 4) * tileSize + tileSize + boardPadding * (j + 1));
+                        var rectPos = new Vector2(position.X + (j + 1) * tileSize + tileSize + boardPadding * (j + 1),
+                            position.Y + (i + 1 + k * 4) * tileSize + tileSize + boardPadding * (i + 1));
                         spriteBatch.Draw(squareTexture, rectPos, colorDict[tet[i, j]]);
                     }
             }
@@ -101,15 +136,15 @@ namespace MonogameTetris.TetrisLib
         {
             if (pieceType != 0)
             {
-                var tet = pieceDictionary.GetTet(pieceType, 1);
+                var tet = pieceDictionary.GetTet(pieceType, 0);
                 for (var i = 0; i < Math.Sqrt(tet.Length); i++)
                 for (var j = 0; j < Math.Sqrt(tet.Length); j++)
                     //dont draw blank tiles
                     if (tet[i, j] != 0)
                     {
                         var rectPos =
-                            new Vector2(position.X + (i + 1) * tileSize + tileSize + boardPadding * (i + 1),
-                                position.Y + (j + 1) * tileSize + tileSize + boardPadding * (j + 1));
+                            new Vector2(position.X + (j + 1) * tileSize + tileSize + boardPadding * (j + 1),
+                                position.Y + (i + 1) * tileSize + tileSize + boardPadding * (i + 1));
                         spriteBatch.Draw(squareTexture, rectPos, colorDict[tet[i, j]]);
                     }
             }

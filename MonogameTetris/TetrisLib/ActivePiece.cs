@@ -149,11 +149,11 @@ namespace MonogameTetris.TetrisLib
         }
 
         //rotate 90 deg
-        public void IncreaseRotState(int[,] boardArray)
+        public bool IncreaseRotState(int[,] boardArray)
         {
             var checkRotReturnVal = CheckRotR(rotState, boardArray);
             //if invalid
-            if (checkRotReturnVal.Equals(new IntVector2(10, 10))) return;
+            if (checkRotReturnVal.Equals(new IntVector2(10, 10))) return false;
 
             //update position
             CurrentLocation.x += checkRotReturnVal.x;
@@ -163,13 +163,15 @@ namespace MonogameTetris.TetrisLib
                 rotState = 0;
             else
                 rotState++;
+
+            return true;
         }
 
         //rotate -90 deg
-        public void DecreaseRotState(int[,] boardArray)
+        public bool DecreaseRotState(int[,] boardArray)
         {
             var checkRotReturnVal = CheckRotL(rotState, boardArray);
-            if (checkRotReturnVal.Equals(new IntVector2(10, 10))) return;
+            if (checkRotReturnVal.Equals(new IntVector2(10, 10))) return false;
 
             CurrentLocation.x += checkRotReturnVal.x;
             CurrentLocation.y += checkRotReturnVal.y;
@@ -178,21 +180,29 @@ namespace MonogameTetris.TetrisLib
                 rotState = 3;
             else
                 rotState--;
+
+            return true;
         }
 
-        public void MoveRight(int[,] boardArray)
+        public bool MoveRight(int[,] boardArray)
         {
             if (IsValidMove(boardArray, rotState, new IntVector2(1, 0))) CurrentLocation.x++;
+            else return false;
+            return true;
         }
 
-        public void MoveLeft(int[,] boardArray)
+        public bool MoveLeft(int[,] boardArray)
         {
             if (IsValidMove(boardArray, rotState, new IntVector2(-1, 0))) CurrentLocation.x--;
+            else return false;
+            return true;
         }
 
-        public void MoveDown(int[,] boardArray)
+        public bool MoveDown(int[,] boardArray)
         {
             if (IsValidMove(boardArray, rotState, new IntVector2(0, 1))) CurrentLocation.y++;
+            else return false;
+            return true;
         }
 
         public bool IsTouchingBlock(int[,] boardArray)
@@ -225,9 +235,10 @@ namespace MonogameTetris.TetrisLib
 
         public void ResetPiece(int pieceTypeI, int sideLengthI)
         {
-            CurrentLocation = new IntVector2(4, 0);
-            pieceType = pieceTypeI;
-            rotState = 0;
+            this.CurrentLocation = new IntVector2(4, 0);
+            this.sideLength = sideLengthI;
+            this.pieceType = pieceTypeI;
+            this.rotState = 0;
         }
     }
 }
