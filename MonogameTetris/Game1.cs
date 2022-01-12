@@ -10,41 +10,16 @@ namespace MonogameTetris
 {
     public class Game1 : Game
     {
-        private readonly ActivePiece _activePiece = new ActivePiece(new IntVector2(5, 15), 0, 4, 3);
-        private readonly ActivePiece _ghostPiece = new ActivePiece(new IntVector2(5, 15), 0, 4, 3);
-        private readonly IntVector2 _boardSize = new IntVector2(10, 20);
-        private readonly Dictionary<int, Color> _colorDict;
-        private readonly InputLib _inputLib = new InputLib();
-        private readonly List<int> _masterPieceQueue = new List<int>();
-        private readonly List<int> _pieceQueuePart = new List<int> {2, 3, 4, 5, 6, 7, 8};
-        private readonly TetrisUtil _tetrisUtil = new TetrisUtil();
-        private int[,] _boardArray;
-        private int _boardPadding;
-        private double _currentTime;
-        private int _delayTime;
         private SpriteFont _font;
         private FrameCounter _frameCounter = new FrameCounter();
-        private double _gravityIntervalTime;
-        private double _lastTime;
-        private double _lastTimeUpdate;
-        private int _moveCount;
-        private readonly PieceDictionary _pieceDictionary = new PieceDictionary();
-        private int _repeatTime;
-        private int _rotateCount;
         private SpriteBatch _spriteBatch;
         private Color[] _squareData;
         private Texture2D _squareTexture;
-        private double _startTime;
-        private int[,] _staticBoardArray;
         private string _testText;
         private int _tileSize;
-        private bool _touchingGroundCheck1;
-        private int _hasHeld;
-        private int _heldPiece;
-        private bool _lastMoveIsSpin = false;
-        private int _backToBack;
-        private bool _wasLastWallkickUsed;
-        private int _garbageSent;
+        private int _gravityIntervalTime;
+        private TetrisGame _player;
+
 
         public Game1()
         {
@@ -53,56 +28,6 @@ namespace MonogameTetris
             graphics.PreferredBackBufferWidth = 1280;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-
-            _staticBoardArray = new int[_boardSize.X, _boardSize.Y];
-            Array.Clear(_staticBoardArray, 0, _staticBoardArray.Length);
-
-            _boardArray = new int[_boardSize.X, _boardSize.Y];
-            Array.Clear(_boardArray, 0, _boardArray.Length);
-
-            //initiate piece queue
-            _pieceQueuePart.Shuffle();
-            _masterPieceQueue.AddRange(_pieceQueuePart);
-            _pieceQueuePart.Shuffle();
-            _masterPieceQueue.AddRange(_pieceQueuePart);
-
-            //0: blank space, 1: garbage, 2: I piece, 3: J piece, 4: L piece, 5: O piece, 6: Z piece, 7: T piece, 8: S piece
-            _colorDict = new Dictionary<int, Color>
-            {
-                //blank tile
-                {0, new Color(59, 53, 57)},
-                //garbage
-                {1, new Color(153, 153, 153)},
-                //I
-                {2, new Color(32, 156, 213)},
-                //J
-                {3, new Color(36, 70, 195)},
-                //L
-                {4, new Color(225, 91, 29)},
-                //O
-                {5, new Color(225, 158, 37)},
-                //S
-                {6, new Color(92, 175, 31)},
-                //T
-                {7, new Color(173, 46, 137)},
-                //Z
-                {8, new Color(213, 22, 59)},
-                
-                //I
-                {20, new Color(32, 156, 213, 127)},
-                //J
-                {30, new Color(36, 70, 195, 127)},
-                //L
-                {40, new Color(225, 91, 29, 127)},
-                //O
-                {50, new Color(225, 158, 37, 127)},
-                //S
-                {60, new Color(92, 175, 31, 127)},
-                //T
-                {70, new Color(173, 46, 137, 127)},
-                //Z
-                {80, new Color(213, 22, 59, 127)}
-            };
         }
 
         protected override void Initialize()
@@ -118,21 +43,21 @@ namespace MonogameTetris
 
             // TODO: use this.Content to load your game content here
             _font = Content.Load<SpriteFont>("Font/Akira");
-
+            
             //SETUP VARIABLES
+            //tile size = 20 board padding = 0
             _tileSize = 20;
-            _boardPadding = 0;
-            _delayTime = 300;
-            _repeatTime = 30;
-            //drop speed
-            _gravityIntervalTime = 1000;
-
 
             _squareData = new Color[_tileSize * _tileSize];
             _squareTexture = new Texture2D(GraphicsDevice, _tileSize, _tileSize);
             for (var i = 0; i < _squareData.Length; ++i)
                 _squareData[i] = White;
             _squareTexture.SetData(_squareData);
+
+            //_boardSettings = new BoardSettings(20, 0, new Vector2(100, 100), _squareTexture);
+
+            _player = new TetrisGame(true, new BoardSettings(20, 0, new IntVector2(100, 100), _squareTexture, _font),
+                new PlayerSettings(300, 30));
         }
 
         protected override void Update(GameTime gameTime)
@@ -144,197 +69,7 @@ namespace MonogameTetris
             //show currently pressed keys
             _testText = string.Join(" ", Keyboard.GetState().GetPressedKeys());
 
-            //update inputlib states
-            _inputLib.Update();
-
-            _currentTime = gameTime.TotalGameTime.TotalMilliseconds;
-
-            //handle keypresses
-            if (_inputLib.IsNewPress(Keys.Up) && _rotateCount <= 15)
-            {
-                var rotStateReturn = _activePiece.IncreaseRotState(_staticBoardArray);
-                if (rotStateReturn[0]) _lastMoveIsSpin = true;
-                _wasLastWallkickUsed = rotStateReturn[1];
-
-                if (_activePiece.IsTouchingBlock(_staticBoardArray))
-                {
-                    _lastTimeUpdate = gameTime.TotalGameTime.TotalMilliseconds;
-                    _rotateCount++;
-                }
-            }
-            else if (_inputLib.IsNewPress(Keys.Z))
-            {
-                var rotStateReturn = _activePiece.DecreaseRotState(_staticBoardArray);
-                if (rotStateReturn[0]) _lastMoveIsSpin = true;
-                _wasLastWallkickUsed = rotStateReturn[1];
-
-                if (_activePiece.IsTouchingBlock(_staticBoardArray) && _rotateCount <= 15)
-                {
-                    _lastTimeUpdate = gameTime.TotalGameTime.TotalMilliseconds;
-                    _rotateCount++;
-                }
-            }
-            else if (_inputLib.DelayRepeatPress(Keys.Right, _delayTime, _repeatTime, _lastTime, _currentTime,
-                         _startTime))
-            {
-                if (_inputLib.IsNewPress(Keys.Right)) _startTime = _currentTime;
-
-                _lastTime = _currentTime;
-                if (_activePiece.MoveRight(_staticBoardArray)) _lastMoveIsSpin = false;
-
-                if (_activePiece.IsTouchingBlock(_staticBoardArray) && _moveCount <= 20)
-                {
-                    _lastTimeUpdate = gameTime.TotalGameTime.TotalMilliseconds;
-                    _moveCount++;
-                }
-            }
-            else if (_inputLib.DelayRepeatPress(Keys.Left, _delayTime, _repeatTime, _lastTime, _currentTime,
-                         _startTime))
-            {
-                if (_inputLib.IsNewPress(Keys.Left)) _startTime = _currentTime;
-
-                _lastTime = _currentTime;
-                if (_activePiece.MoveLeft(_staticBoardArray)) _lastMoveIsSpin = false;
-
-                if (_activePiece.IsTouchingBlock(_staticBoardArray) && _moveCount <= 20)
-                {
-                    _lastTimeUpdate = gameTime.TotalGameTime.TotalMilliseconds;
-                    _moveCount++;
-                }
-            }
-            else if (_inputLib.IsNewPress(Keys.Space))
-            {
-                _hasHeld = 0;
-                _activePiece.HardDrop(_staticBoardArray);
-
-                var staticBoardArrayCopy = (int[,]) _staticBoardArray.Clone();
-                _staticBoardArray = _activePiece.ReturnLockedInBoard(_staticBoardArray);
-                
-                _garbageSent = _tetrisUtil.ClearLines(ref _staticBoardArray, staticBoardArrayCopy, ref _backToBack,
-                    _lastMoveIsSpin, _activePiece, _wasLastWallkickUsed);
-                
-                if (_masterPieceQueue[0] == 2)
-                    _activePiece.ResetPiece(_masterPieceQueue[0], 4);
-                else
-                    _activePiece.ResetPiece(_masterPieceQueue[0], 3);
-                _masterPieceQueue.RemoveAt(0);
-
-                //refill queue
-                if (_masterPieceQueue.Count <= 7)
-                {
-                    _pieceQueuePart.Shuffle();
-                    _masterPieceQueue.AddRange(_pieceQueuePart);
-                }
-
-                _rotateCount = 0;
-                _touchingGroundCheck1 = false;
-
-                /*
-                foreach (var line in _tetrisUtil.CheckLines(_staticBoardArray))
-                    _staticBoardArray = _tetrisUtil.ClearRow(_staticBoardArray, line);
-                    */
-            }
-            else if (_inputLib.RepeatPress(Keys.Down, _repeatTime, _lastTime, _currentTime))
-            {
-                _lastTime = _currentTime;
-                if (_activePiece.MoveDown(_staticBoardArray)) _lastMoveIsSpin = false;
-            }
-            else if (_inputLib.IsNewPress(Keys.C))
-            {
-                if (_hasHeld == 0)
-                {
-                    _hasHeld = 1;
-
-                    if (_heldPiece == 0)
-                    {
-                        _heldPiece = _activePiece.PieceType;
-
-                        if (_masterPieceQueue[0] == 2)
-                            _activePiece.ResetPiece(_masterPieceQueue[0], 4);
-                        else
-                            _activePiece.ResetPiece(_masterPieceQueue[0], 3);
-                        _masterPieceQueue.RemoveAt(0);
-
-                        //refill queue
-                        if (_masterPieceQueue.Count <= 7)
-                        {
-                            _pieceQueuePart.Shuffle();
-                            _masterPieceQueue.AddRange(_pieceQueuePart);
-                        }
-                    }
-                    else
-                    {
-                        var pieceTemp = _activePiece.PieceType;
-                        if (_heldPiece == 2)
-                            _activePiece.ResetPiece(_heldPiece, 4);
-                        else
-                            _activePiece.ResetPiece(_heldPiece, 3);
-
-                        _heldPiece = pieceTemp;
-                    }
-
-                    _rotateCount = 0;
-                    _touchingGroundCheck1 = false;
-                }
-            }
-
-            //gravity
-            if (gameTime.TotalGameTime.TotalMilliseconds - _lastTimeUpdate > _gravityIntervalTime)
-            {
-                //update time since last gravity
-                _lastTimeUpdate = gameTime.TotalGameTime.TotalMilliseconds;
-
-                //if touching block
-                if (_activePiece.IsTouchingBlock(_staticBoardArray))
-                {
-                    //Console.Write("test");
-                    if (!_touchingGroundCheck1)
-                    {
-                        _touchingGroundCheck1 = true;
-                    }
-                    else
-                    {
-                        _hasHeld = 0;
-                        var staticBoardArrayCopy = (int[,]) _staticBoardArray.Clone();
-                        _staticBoardArray = _activePiece.ReturnLockedInBoard(_staticBoardArray);
-                        
-                        _garbageSent = _tetrisUtil.ClearLines(ref _staticBoardArray, staticBoardArrayCopy, ref _backToBack,
-                            _lastMoveIsSpin, _activePiece, _wasLastWallkickUsed);
-                        
-                        if (_masterPieceQueue[0] == 2)
-                            _activePiece.ResetPiece(_masterPieceQueue[0], 4);
-                        else
-                            _activePiece.ResetPiece(_masterPieceQueue[0], 3);
-                        _masterPieceQueue.RemoveAt(0);
-
-                        //refill queue
-                        if (_masterPieceQueue.Count <= 7)
-                        {
-                            _pieceQueuePart.Shuffle();
-                            _masterPieceQueue.AddRange(_pieceQueuePart);
-                        }
-
-                        _rotateCount = 0;
-                        _touchingGroundCheck1 = false;
-
-                        /*
-                        foreach (var line in _tetrisUtil.CheckLines(_staticBoardArray))
-                            _staticBoardArray = _tetrisUtil.ClearRow(_staticBoardArray, line);
-                            */
-                    }
-                }
-                else
-                {
-                    _activePiece.MoveDown(_staticBoardArray);
-                    _lastMoveIsSpin = false;
-                }
-            }
-
-            _ghostPiece.CurrentLocation = _activePiece.CurrentLocation;
-            _ghostPiece.RotState = _activePiece.RotState;
-            _ghostPiece.PieceType = _activePiece.PieceType;
-            _ghostPiece.SideLength = _activePiece.SideLength;
-            _ghostPiece.HardDrop(_staticBoardArray);
+            _player.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -345,33 +80,8 @@ namespace MonogameTetris
             GraphicsDevice.Clear(DarkSlateBlue);
             _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied);
 
-            //set up board 1
-
-            Array.Clear(_boardArray, 0, _boardArray.Length);
-            var staticBoardArrayCopy = (int[,]) _staticBoardArray.Clone();
-            _boardArray = staticBoardArrayCopy;
-            _boardArray = _tetrisUtil.ReturnBoardWithGhostPiece(staticBoardArrayCopy, _ghostPiece);
-            _boardArray = _tetrisUtil.ReturnBoardWithPiece(_boardArray, _activePiece);
-
-            //draw board
-            _tetrisUtil.DrawBoard(_boardSize.X, _boardSize.Y, 100, 100, _tileSize, _boardPadding, _spriteBatch,
-                _colorDict, _boardArray, _squareTexture);
-
-            //draw queue + held piece
-            _tetrisUtil.DrawQueue(_masterPieceQueue, new Vector2(400, 100), _tileSize, _boardPadding, _spriteBatch,
-                _colorDict, _squareTexture, _pieceDictionary);
-            _tetrisUtil.DrawHeld(_heldPiece, new Vector2(15, 100), _tileSize, _boardPadding, _spriteBatch, _colorDict,
-                _squareTexture, _pieceDictionary);
-
-            //FPS COUNTER
-            /*
-            var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _frameCounter.Update(deltaTime);
-            var fps = string.Format("FPS: {0}", _frameCounter.AverageFramesPerSecond);
-            _spriteBatch.DrawString(font, fps, new Vector2(1, 1), Color.Black);
-            */
-            
-            _spriteBatch.DrawString(_font, _garbageSent.ToString(), new Vector2(1, 1), Color.Black);
+            //DRAW PLAYER BOARD
+            _player.Draw(gameTime, _spriteBatch);
 
             // Finds the center of the string in coordinates inside the text rectangle
             var textMiddlePoint = _font.MeasureString(_testText) / 2;
