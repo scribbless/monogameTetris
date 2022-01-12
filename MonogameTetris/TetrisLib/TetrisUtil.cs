@@ -26,12 +26,12 @@ namespace MonogameTetris.TetrisLib
         //return board array with piece in it
         public int[,] ReturnBoardWithPiece(int[,] boardArray1, ActivePiece piece)
         {
-            var pieceShape = _pieceDictionary.GetTet(piece.pieceType, piece.rotState);
-            for (var i = 0; i < piece.sideLength; i++)
-            for (var j = 0; j < piece.sideLength; j++)
+            var pieceShape = _pieceDictionary.GetTet(piece.PieceType, piece.RotState);
+            for (var i = 0; i < piece.SideLength; i++)
+            for (var j = 0; j < piece.SideLength; j++)
             {
                 if (pieceShape[i, j] == 0) continue;
-                boardArray1[piece.CurrentLocation.x + j, piece.CurrentLocation.y + i] = pieceShape[i, j];
+                boardArray1[piece.CurrentLocation.X + j, piece.CurrentLocation.Y + i] = pieceShape[i, j];
             }
 
             return boardArray1;
@@ -39,12 +39,12 @@ namespace MonogameTetris.TetrisLib
         
         public int[,] ReturnBoardWithGhostPiece(int[,] boardArray1, ActivePiece piece)
         {
-            var pieceShape = _pieceDictionary.GetTet(piece.pieceType, piece.rotState);
-            for (var i = 0; i < piece.sideLength; i++)
-            for (var j = 0; j < piece.sideLength; j++)
+            var pieceShape = _pieceDictionary.GetTet(piece.PieceType, piece.RotState);
+            for (var i = 0; i < piece.SideLength; i++)
+            for (var j = 0; j < piece.SideLength; j++)
             {
                 if (pieceShape[i, j] == 0) continue;
-                boardArray1[piece.CurrentLocation.x + j, piece.CurrentLocation.y + i] = pieceShape[i, j] * 10;
+                boardArray1[piece.CurrentLocation.X + j, piece.CurrentLocation.Y + i] = pieceShape[i, j] * 10;
             }
 
             return boardArray1;
@@ -88,23 +88,153 @@ namespace MonogameTetris.TetrisLib
             return blankArray;
         }
 
-        public int ClearLines(ref int[,] boardArray, int[,] staticBoardArray, int backToBack, bool lastMoveIsSpin)
+        public int ClearLines(ref int[,] boardArray, int[,] staticBoardArray, ref int backToBack, bool lastMoveIsSpin, ActivePiece activePiece, bool wasLastWallkickUsed)
         {
             var lines = CheckLines(boardArray);
             
-            //
-            int garbageSent = 0;
+            //0 = no tspin 1 = tspin mini 2 = tspin
+            var spinType = 0;
             
+            //
+            var garbageSent = 0;
+
+            //check for t spin
+            if (activePiece.PieceType == 7)
+            {
+                if (lastMoveIsSpin)
+                {
+                    var cornerCount = 0;
+                    Console.Write(
+                        staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 0]);
+                    Console.Write("\n");
+                    if (staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 0] != 0)
+                        cornerCount++;
+                    if (staticBoardArray[activePiece.CurrentLocation.X + 2, activePiece.CurrentLocation.Y + 0] != 0)
+                        cornerCount++;
+                    if (staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 2] != 0)
+                        cornerCount++;
+                    if (staticBoardArray[activePiece.CurrentLocation.X + 2, activePiece.CurrentLocation.Y + 2] != 0)
+                        cornerCount++;
+
+                    if (cornerCount >= 3)
+                    {
+                        switch (activePiece.RotState)
+                        {
+                            case 0:
+                                if (staticBoardArray[activePiece.CurrentLocation.X + 0,
+                                        activePiece.CurrentLocation.Y + 0] != 0 &&
+                                    staticBoardArray[activePiece.CurrentLocation.X + 2,
+                                        activePiece.CurrentLocation.Y + 0] != 0)
+                                {
+                                    spinType = 2;
+                                }
+                                else
+                                {
+                                    spinType = wasLastWallkickUsed ? 2 : 1;
+                                }
+
+                                break;
+                            case 1:
+                                if (staticBoardArray[activePiece.CurrentLocation.X + 2,
+                                        activePiece.CurrentLocation.Y + 0] != 0 &&
+                                    staticBoardArray[activePiece.CurrentLocation.X + 2,
+                                        activePiece.CurrentLocation.Y + 2] != 0)
+                                {
+                                    spinType = 2;
+                                }
+                                else
+                                {
+                                    spinType = wasLastWallkickUsed ? 2 : 1;
+                                }
+
+                                break;
+                            case 2:
+                                if (staticBoardArray[activePiece.CurrentLocation.X + 0,
+                                        activePiece.CurrentLocation.Y + 2] != 0 &&
+                                    staticBoardArray[activePiece.CurrentLocation.X + 2,
+                                        activePiece.CurrentLocation.Y + 2] != 0)
+                                {
+                                    spinType = 2;
+                                }
+                                else
+                                {
+                                    spinType = wasLastWallkickUsed ? 2 : 1;
+                                }
+
+                                break;
+                            case 3:
+                                if (staticBoardArray[activePiece.CurrentLocation.X + 0,
+                                        activePiece.CurrentLocation.Y + 0] != 0 &&
+                                    staticBoardArray[activePiece.CurrentLocation.X + 0,
+                                        activePiece.CurrentLocation.Y + 2] != 0)
+                                {
+                                    spinType = 2;
+                                }
+                                else
+                                {
+                                    spinType = wasLastWallkickUsed ? 2 : 1;
+                                }
+
+                                break;
+                        }
+                    }
+                }
+            }
+            
+            if (backToBack == 1 && spinType != 0)
+            {
+                garbageSent += 2;
+            }
+
+            //conditions for garbage sent
+            //if normal tspin
+            if (spinType == 2)
+            {
+                garbageSent = lines.Count switch
+                {
+                    1 => 2,
+                    2 => 4,
+                    3 => 6,
+                    _ => garbageSent
+                };
+            }
+            //if not tspin
+            else
+            {
+                if (lines.Count >= 2)
+                {
+                    switch (lines.Count)
+                    {
+                        case 2:
+                            garbageSent = 1;
+                            break;
+                        case 3:
+                            garbageSent = 2;
+                            break;
+                        case 4:
+                            garbageSent = 4;
+                            if (backToBack == 1)
+                            {
+                                garbageSent += 2;
+                            }
+                            backToBack = 1;
+                            break;
+                    }
+                }
+            }
+
             //clear lines
             boardArray = lines.Aggregate(boardArray, ClearRow);
 
-            //if single clear or below then don't send any garbage
-            if (lines.Count <= 1)
+            //check for perfect clear
+            if (boardArray.Cast<int>().Sum() != 0) return garbageSent;
+            
+            garbageSent = 10;
+            if (backToBack == 1)
             {
-                if (lines.Count == 2) garbageSent = 1;
-                else if (lines.Count == 3) garbageSent = 2;
-                else if (lines.Count == 4) garbageSent = 4;
+                garbageSent += 2;
             }
+            backToBack = 1;
 
             return garbageSent;
         }

@@ -5,7 +5,7 @@ namespace MonogameTetris.TetrisLib
 {
     public class FrameCounter
     {
-        public const int MAXIMUM_SAMPLES = 100;
+        public const int MaximumSamples = 100;
 
         private readonly Queue<float> _sampleBuffer = new Queue<float>();
 
@@ -20,7 +20,7 @@ namespace MonogameTetris.TetrisLib
 
             _sampleBuffer.Enqueue(CurrentFramesPerSecond);
 
-            if (_sampleBuffer.Count > MAXIMUM_SAMPLES)
+            if (_sampleBuffer.Count > MaximumSamples)
             {
                 _sampleBuffer.Dequeue();
                 AverageFramesPerSecond = _sampleBuffer.Average(i => i);

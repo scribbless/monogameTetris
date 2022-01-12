@@ -42,6 +42,9 @@ namespace MonogameTetris
         private int _hasHeld;
         private int _heldPiece;
         private bool _lastMoveIsSpin = false;
+        private int _backToBack;
+        private bool _wasLastWallkickUsed;
+        private int _garbageSent;
 
         public Game1()
         {
@@ -51,10 +54,10 @@ namespace MonogameTetris
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            _staticBoardArray = new int[_boardSize.x, _boardSize.y];
+            _staticBoardArray = new int[_boardSize.X, _boardSize.Y];
             Array.Clear(_staticBoardArray, 0, _staticBoardArray.Length);
 
-            _boardArray = new int[_boardSize.x, _boardSize.y];
+            _boardArray = new int[_boardSize.X, _boardSize.Y];
             Array.Clear(_boardArray, 0, _boardArray.Length);
 
             //initiate piece queue
@@ -119,10 +122,10 @@ namespace MonogameTetris
             //SETUP VARIABLES
             _tileSize = 20;
             _boardPadding = 0;
-            _delayTime = 100;
+            _delayTime = 300;
             _repeatTime = 30;
             //drop speed
-            _gravityIntervalTime = 500;
+            _gravityIntervalTime = 1000;
 
 
             _squareData = new Color[_tileSize * _tileSize];
@@ -149,7 +152,9 @@ namespace MonogameTetris
             //handle keypresses
             if (_inputLib.IsNewPress(Keys.Up) && _rotateCount <= 15)
             {
-                if (_activePiece.IncreaseRotState(_staticBoardArray)) _lastMoveIsSpin = true;
+                var rotStateReturn = _activePiece.IncreaseRotState(_staticBoardArray);
+                if (rotStateReturn[0]) _lastMoveIsSpin = true;
+                _wasLastWallkickUsed = rotStateReturn[1];
 
                 if (_activePiece.IsTouchingBlock(_staticBoardArray))
                 {
@@ -159,7 +164,9 @@ namespace MonogameTetris
             }
             else if (_inputLib.IsNewPress(Keys.Z))
             {
-                if (_activePiece.DecreaseRotState(_staticBoardArray)) _lastMoveIsSpin = true;
+                var rotStateReturn = _activePiece.DecreaseRotState(_staticBoardArray);
+                if (rotStateReturn[0]) _lastMoveIsSpin = true;
+                _wasLastWallkickUsed = rotStateReturn[1];
 
                 if (_activePiece.IsTouchingBlock(_staticBoardArray) && _rotateCount <= 15)
                 {
@@ -200,7 +207,12 @@ namespace MonogameTetris
                 _hasHeld = 0;
                 _activePiece.HardDrop(_staticBoardArray);
 
+                var staticBoardArrayCopy = (int[,]) _staticBoardArray.Clone();
                 _staticBoardArray = _activePiece.ReturnLockedInBoard(_staticBoardArray);
+                
+                _garbageSent = _tetrisUtil.ClearLines(ref _staticBoardArray, staticBoardArrayCopy, ref _backToBack,
+                    _lastMoveIsSpin, _activePiece, _wasLastWallkickUsed);
+                
                 if (_masterPieceQueue[0] == 2)
                     _activePiece.ResetPiece(_masterPieceQueue[0], 4);
                 else
@@ -217,8 +229,10 @@ namespace MonogameTetris
                 _rotateCount = 0;
                 _touchingGroundCheck1 = false;
 
+                /*
                 foreach (var line in _tetrisUtil.CheckLines(_staticBoardArray))
                     _staticBoardArray = _tetrisUtil.ClearRow(_staticBoardArray, line);
+                    */
             }
             else if (_inputLib.RepeatPress(Keys.Down, _repeatTime, _lastTime, _currentTime))
             {
@@ -233,7 +247,7 @@ namespace MonogameTetris
 
                     if (_heldPiece == 0)
                     {
-                        _heldPiece = _activePiece.pieceType;
+                        _heldPiece = _activePiece.PieceType;
 
                         if (_masterPieceQueue[0] == 2)
                             _activePiece.ResetPiece(_masterPieceQueue[0], 4);
@@ -250,7 +264,7 @@ namespace MonogameTetris
                     }
                     else
                     {
-                        var pieceTemp = _activePiece.pieceType;
+                        var pieceTemp = _activePiece.PieceType;
                         if (_heldPiece == 2)
                             _activePiece.ResetPiece(_heldPiece, 4);
                         else
@@ -281,7 +295,12 @@ namespace MonogameTetris
                     else
                     {
                         _hasHeld = 0;
+                        var staticBoardArrayCopy = (int[,]) _staticBoardArray.Clone();
                         _staticBoardArray = _activePiece.ReturnLockedInBoard(_staticBoardArray);
+                        
+                        _garbageSent = _tetrisUtil.ClearLines(ref _staticBoardArray, staticBoardArrayCopy, ref _backToBack,
+                            _lastMoveIsSpin, _activePiece, _wasLastWallkickUsed);
+                        
                         if (_masterPieceQueue[0] == 2)
                             _activePiece.ResetPiece(_masterPieceQueue[0], 4);
                         else
@@ -298,8 +317,10 @@ namespace MonogameTetris
                         _rotateCount = 0;
                         _touchingGroundCheck1 = false;
 
+                        /*
                         foreach (var line in _tetrisUtil.CheckLines(_staticBoardArray))
                             _staticBoardArray = _tetrisUtil.ClearRow(_staticBoardArray, line);
+                            */
                     }
                 }
                 else
@@ -310,9 +331,9 @@ namespace MonogameTetris
             }
 
             _ghostPiece.CurrentLocation = _activePiece.CurrentLocation;
-            _ghostPiece.rotState = _activePiece.rotState;
-            _ghostPiece.pieceType = _activePiece.pieceType;
-            _ghostPiece.sideLength = _activePiece.sideLength;
+            _ghostPiece.RotState = _activePiece.RotState;
+            _ghostPiece.PieceType = _activePiece.PieceType;
+            _ghostPiece.SideLength = _activePiece.SideLength;
             _ghostPiece.HardDrop(_staticBoardArray);
 
             base.Update(gameTime);
@@ -333,7 +354,7 @@ namespace MonogameTetris
             _boardArray = _tetrisUtil.ReturnBoardWithPiece(_boardArray, _activePiece);
 
             //draw board
-            _tetrisUtil.DrawBoard(_boardSize.x, _boardSize.y, 100, 100, _tileSize, _boardPadding, _spriteBatch,
+            _tetrisUtil.DrawBoard(_boardSize.X, _boardSize.Y, 100, 100, _tileSize, _boardPadding, _spriteBatch,
                 _colorDict, _boardArray, _squareTexture);
 
             //draw queue + held piece
@@ -350,7 +371,7 @@ namespace MonogameTetris
             _spriteBatch.DrawString(font, fps, new Vector2(1, 1), Color.Black);
             */
             
-            _spriteBatch.DrawString(_font, _lastMoveIsSpin.ToString(), new Vector2(1, 1), Color.Black);
+            _spriteBatch.DrawString(_font, _garbageSent.ToString(), new Vector2(1, 1), Color.Black);
 
             // Finds the center of the string in coordinates inside the text rectangle
             var textMiddlePoint = _font.MeasureString(_testText) / 2;

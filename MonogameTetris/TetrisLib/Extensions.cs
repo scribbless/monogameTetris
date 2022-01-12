@@ -5,7 +5,7 @@ namespace MonogameTetris.TetrisLib
 {
     internal static class Extensions
     {
-        private static readonly Random rng = new Random();
+        private static readonly Random Rng = new Random();
 
         public static void Shuffle<T>(this IList<T> list)
         {
@@ -13,7 +13,7 @@ namespace MonogameTetris.TetrisLib
             while (n > 1)
             {
                 n--;
-                var k = rng.Next(n + 1);
+                var k = Rng.Next(n + 1);
                 var value = list[k];
                 list[k] = list[n];
                 list[n] = value;
