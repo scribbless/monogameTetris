@@ -19,6 +19,7 @@ namespace MonogameTetris
         private int _tileSize;
         private int _gravityIntervalTime;
         private TetrisGame _player;
+        private bool _causesLoss = false;
 
 
         public Game1()

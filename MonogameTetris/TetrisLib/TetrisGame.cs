@@ -299,6 +299,21 @@ namespace MonogameTetris.TetrisLib
             _ghostPiece.HardDrop(_staticBoardArray);
         }
 
+        public int SendGarbage()
+        {
+            var sendGarbage = _garbageSent;
+            _garbageSent = 0;
+            return sendGarbage;
+        }
+
+        public void RecieveGarbage(int garbageData)
+        {
+            if (garbageData != 0)
+            {
+                
+            }    
+        }
+        
         public int CheckGarbage()
         {
             return _garbageSent;

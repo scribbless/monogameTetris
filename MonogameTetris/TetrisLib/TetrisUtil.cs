@@ -104,17 +104,47 @@ namespace MonogameTetris.TetrisLib
                 if (lastMoveIsSpin)
                 {
                     var cornerCount = 0;
-                    Console.Write(
-                        staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 0]);
-                    Console.Write("\n");
-                    if (staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 0] != 0)
+
+                    if (activePiece.CurrentLocation.X + 0 > 0 && activePiece.CurrentLocation.Y > 0)
+                    {
+                        if (staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 0] != 0)
+                            cornerCount++;
+                    }
+                    else
+                    {
                         cornerCount++;
-                    if (staticBoardArray[activePiece.CurrentLocation.X + 2, activePiece.CurrentLocation.Y + 0] != 0)
+                    }
+
+                    if (activePiece.CurrentLocation.X + 2 < 10 && activePiece.CurrentLocation.Y > 0)
+                    {
+                        if (staticBoardArray[activePiece.CurrentLocation.X + 2, activePiece.CurrentLocation.Y + 0] != 0)
+                            cornerCount++;
+                    }
+                    else
+                    {
                         cornerCount++;
-                    if (staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 2] != 0)
+                    }
+
+                    if (activePiece.CurrentLocation.X + 0 > 0 && activePiece.CurrentLocation.Y < 20)
+                    {
+                        if (staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 2] != 0)
+                            cornerCount++;
+                    }
+                    else
+                    {
                         cornerCount++;
-                    if (staticBoardArray[activePiece.CurrentLocation.X + 2, activePiece.CurrentLocation.Y + 2] != 0)
+                    }
+
+                    if (activePiece.CurrentLocation.X + 0 < 10 && activePiece.CurrentLocation.Y < 20)
+                    {
+                        if (staticBoardArray[activePiece.CurrentLocation.X + 2, activePiece.CurrentLocation.Y + 2] != 0)
+                            cornerCount++;
+                    }
+                    else
+                    {
                         cornerCount++;
+                    }
+
 
                     if (cornerCount >= 3)
                     {
@@ -278,6 +308,47 @@ namespace MonogameTetris.TetrisLib
                         spriteBatch.Draw(squareTexture, rectPos, colorDict[tet[i, j]]);
                     }
             }
+        }
+
+        public int[,] AddGarbageRow(int[,] boardArray, ref bool causesLoss, int holePlacement)
+        {
+            var blankArray = new int[10, 20];
+            Array.Clear(blankArray, 0, blankArray.Length);
+            
+            for (var i = 0; i < 10; i++)
+            {
+                if (boardArray[i, 0] == 0) continue;
+                causesLoss = true;
+                return boardArray;
+            }
+            
+            for (var i = 1; i < 20; i++)
+            for (var j = 0; j < 10; j++)
+            {
+                
+                blankArray[j, i - 1] = boardArray[j, i];
+            }
+            
+            for (var i = 0; i < 10; i++)
+            {
+                if (i != holePlacement)
+                {
+                    blankArray[i, 19] = 1;
+                }
+            }
+            
+            return blankArray;
+        }
+
+        public int[,] AddGarbage(int[,] boardArray, int garbageData, ref bool causesLoss)
+        {
+            var r = new Random();
+            for (var i = 0; i < garbageData; i++)
+            {
+                boardArray = AddGarbageRow(boardArray, ref causesLoss, r.Next(0, 9));
+            }
+
+            return boardArray;
         }
     }
 }
