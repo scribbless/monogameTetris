@@ -7,8 +7,8 @@ namespace MonogameTetris.TetrisLib
 
         public IntVector2(int x, int y)
         {
-            this.X = x;
-            this.Y = y;
+            X = x;
+            Y = y;
         }
     }
 }

@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonogameTetris.TetrisLib
@@ -10,14 +9,15 @@ namespace MonogameTetris.TetrisLib
         public IntVector2 Location;
         public Texture2D SquareTexture;
         public SpriteFont Font;
-        
-        public BoardSettings(int tileSize, int boardPadding, IntVector2 location, Texture2D squareTexture, SpriteFont font)
+
+        public BoardSettings(int tileSize, int boardPadding, IntVector2 location, Texture2D squareTexture,
+            SpriteFont font)
         {
-            this.TileSize = tileSize;
-            this.BoardPadding = boardPadding;
-            this.Location = location;
-            this.SquareTexture = squareTexture;
-            this.Font = font;
+            TileSize = tileSize;
+            BoardPadding = boardPadding;
+            Location = location;
+            SquareTexture = squareTexture;
+            Font = font;
         }
     }
 }

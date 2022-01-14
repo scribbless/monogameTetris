@@ -14,9 +14,7 @@ namespace MonogameTetris.TetrisLib
             {
                 n--;
                 var k = Rng.Next(n + 1);
-                var value = list[k];
-                list[k] = list[n];
-                list[n] = value;
+                (list[k], list[n]) = (list[n], list[k]);
             }
         }
     }

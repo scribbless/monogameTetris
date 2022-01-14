@@ -3,19 +3,19 @@ namespace MonogameTetris.TetrisLib
     public class ActivePiece
     {
         private readonly PieceDictionary _pieceDictionary = new PieceDictionary();
+        private bool _wasLastWallkickUsed;
         public IntVector2 CurrentLocation;
         public InputLib InputLib = new InputLib();
         public int PieceType;
         public int RotState;
         public int SideLength;
-        private bool _wasLastWallkickUsed = false;
 
         public ActivePiece(IntVector2 currentLocation, int rotState, int pieceType, int sideLength)
         {
-            this.CurrentLocation = currentLocation;
-            this.RotState = rotState;
-            this.PieceType = pieceType;
-            this.SideLength = sideLength;
+            CurrentLocation = currentLocation;
+            RotState = rotState;
+            PieceType = pieceType;
+            SideLength = sideLength;
         }
 
         private bool IsValidMove(int[,] boardArray, int newRotState, IntVector2 wallKick)
@@ -53,112 +53,107 @@ namespace MonogameTetris.TetrisLib
         {
             //Calc next rot state
             var newRotState = rotState;
-            if (this.RotState == 3)
+            if (RotState == 3)
                 newRotState = 0;
             else
                 newRotState++;
 
-            //IF I PIECE
-            if (PieceType == 2)
+            switch (PieceType)
             {
-                var wallKickData = _pieceDictionary.GetWallKick(true, true, this.RotState);
-
-                for (var i = 0; i < 5; i++)
+                //IF I PIECE
+                case 2:
                 {
-                    //contstruct vector from wall kick data and iterate over
-                    var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
+                    var wallKickData = _pieceDictionary.GetWallKick(true, true, RotState);
 
-                    //check if wall kick is valid
-                    if (IsValidMove(boardArray, newRotState, wallKick)) return wallKick;
-                }
-
-                return new IntVector2(10, 10);
-            }
-            //IF O PIECE
-
-            if (PieceType == 5)
-            {
-                return new IntVector2(0, 0);
-            }
-            //IF OTHER PIECE
-            
-            {
-                var wallKickData = _pieceDictionary.GetWallKick(false, true, this.RotState);
-
-                for (var i = 0; i < 5; i++)
-                {
-                    //contstruct vector from wall kick data and iterate over
-                    var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
-
-                    //check if wall kick is valid
-                    if (IsValidMove(boardArray, newRotState, wallKick))
+                    for (var i = 0; i < 5; i++)
                     {
-                        if (i == 4) _wasLastWallkickUsed = true;
-                        return wallKick;
+                        //construct vector from wall kick data and iterate over
+                        var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
+
+                        //check if wall kick is valid
+                        if (IsValidMove(boardArray, newRotState, wallKick)) return wallKick;
                     }
+
+                    return new IntVector2(10, 10);
                 }
+                //IF O PIECE
+                case 5:
+                    return new IntVector2(0, 0);
+                default:
+                {
+                    var wallKickData = _pieceDictionary.GetWallKick(false, true, RotState);
 
-                _wasLastWallkickUsed = false;
+                    for (var i = 0; i < 5; i++)
+                    {
+                        //construct vector from wall kick data and iterate over
+                        var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
 
-                return new IntVector2(10, 10);
+                        //check if wall kick is valid
+                        if (IsValidMove(boardArray, newRotState, wallKick))
+                        {
+                            if (i == 4) _wasLastWallkickUsed = true;
+                            return wallKick;
+                        }
+                    }
+
+                    _wasLastWallkickUsed = false;
+
+                    return new IntVector2(10, 10);
+                }
             }
-            //get wall kick data for rotation and piece type
         }
 
         private IntVector2 CheckRotL(int rotState, int[,] boardArray)
         {
             //Calc next rot state
             var newRotState = rotState;
-            if (this.RotState == 0)
+            if (RotState == 0)
                 newRotState = 3;
             else
                 newRotState--;
 
-            //IF I PIECE
-            if (PieceType == 2)
+            switch (PieceType)
             {
-                var wallKickData = _pieceDictionary.GetWallKick(true, false, this.RotState);
-
-                for (var i = 0; i < 5; i++)
+                //IF I PIECE
+                case 2:
                 {
-                    //contstruct vector from wall kick data and iterate over
-                    var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
+                    var wallKickData = _pieceDictionary.GetWallKick(true, false, RotState);
 
-                    //check if wall kick is valid
-                    if (IsValidMove(boardArray, newRotState, wallKick)) return wallKick;
-                }
-
-                return new IntVector2(10, 10);
-            }
-            //IF O PIECE
-
-            if (PieceType == 5)
-            {
-                return new IntVector2(0, 0);
-            }
-            //IF OTHER PIECE
-
-            {
-                var wallKickData = _pieceDictionary.GetWallKick(false, false, this.RotState);
-
-                for (var i = 0; i < 5; i++)
-                {
-                    //contstruct vector from wall kick data and iterate over
-                    var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
-
-                    //check if wall kick is valid
-                    if (IsValidMove(boardArray, newRotState, wallKick))
+                    for (var i = 0; i < 5; i++)
                     {
+                        //construct vector from wall kick data and iterate over
+                        var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
+
+                        //check if wall kick is valid
+                        if (IsValidMove(boardArray, newRotState, wallKick)) return wallKick;
+                    }
+
+                    return new IntVector2(10, 10);
+                }
+                //IF O PIECE
+                case 5:
+                    return new IntVector2(0, 0);
+
+                default:
+                {
+                    var wallKickData = _pieceDictionary.GetWallKick(false, false, RotState);
+
+                    for (var i = 0; i < 5; i++)
+                    {
+                        //construct vector from wall kick data and iterate over
+                        var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
+
+                        //check if wall kick is valid
+                        if (!IsValidMove(boardArray, newRotState, wallKick)) continue;
                         if (i == 4) _wasLastWallkickUsed = true;
                         return wallKick;
                     }
+
+                    _wasLastWallkickUsed = false;
+
+                    return new IntVector2(10, 10);
                 }
-
-                _wasLastWallkickUsed = false;
-
-                return new IntVector2(10, 10);
             }
-            //get wall kick data for rotation and piece type
         }
 
         //rotate 90 deg
@@ -166,7 +161,7 @@ namespace MonogameTetris.TetrisLib
         {
             var checkRotReturnVal = CheckRotR(RotState, boardArray);
             //if invalid
-            if (checkRotReturnVal.Equals(new IntVector2(10, 10))) return new [] {false, _wasLastWallkickUsed};
+            if (checkRotReturnVal.Equals(new IntVector2(10, 10))) return new[] {false, _wasLastWallkickUsed};
 
             //update position
             CurrentLocation.X += checkRotReturnVal.X;
@@ -177,14 +172,14 @@ namespace MonogameTetris.TetrisLib
             else
                 RotState++;
 
-            return new [] {true, _wasLastWallkickUsed};
+            return new[] {true, _wasLastWallkickUsed};
         }
 
         //rotate -90 deg
         public bool[] DecreaseRotState(int[,] boardArray)
         {
             var checkRotReturnVal = CheckRotL(RotState, boardArray);
-            if (checkRotReturnVal.Equals(new IntVector2(10, 10))) return new [] {false, _wasLastWallkickUsed};;
+            if (checkRotReturnVal.Equals(new IntVector2(10, 10))) return new[] {false, _wasLastWallkickUsed};
 
             CurrentLocation.X += checkRotReturnVal.X;
             CurrentLocation.Y += checkRotReturnVal.Y;
@@ -194,7 +189,7 @@ namespace MonogameTetris.TetrisLib
             else
                 RotState--;
 
-            return new [] {true, _wasLastWallkickUsed};;
+            return new[] {true, _wasLastWallkickUsed};
         }
 
         public bool MoveRight(int[,] boardArray)
@@ -220,17 +215,16 @@ namespace MonogameTetris.TetrisLib
 
         public bool IsTouchingBlock(int[,] boardArray)
         {
-            if (IsValidMove(boardArray, RotState, new IntVector2(0, 1))) return false;
-
-            return true;
+            return !IsValidMove(boardArray, RotState, new IntVector2(0, 1));
         }
 
         public void HardDrop(int[,] boardArray)
         {
-            if (IsTouchingBlock(boardArray))
-                return;
-            MoveDown(boardArray);
-            HardDrop(boardArray);
+            while (true)
+            {
+                if (IsTouchingBlock(boardArray)) return;
+                MoveDown(boardArray);
+            }
         }
 
         public int[,] ReturnLockedInBoard(int[,] boardArray)
@@ -248,11 +242,11 @@ namespace MonogameTetris.TetrisLib
 
         public void ResetPiece(int pieceTypeI, int sideLengthI)
         {
-            this.CurrentLocation = new IntVector2(4, 0);
-            this.SideLength = sideLengthI;
-            this.PieceType = pieceTypeI;
-            this.RotState = 0;
-            this._wasLastWallkickUsed = false;
+            CurrentLocation = new IntVector2(4, 0);
+            SideLength = sideLengthI;
+            PieceType = pieceTypeI;
+            RotState = 0;
+            _wasLastWallkickUsed = false;
         }
     }
 }

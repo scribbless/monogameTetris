@@ -27,7 +27,4 @@
         <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.2070-develop" />
         <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.2070-develop" />
     </ItemGroup>
-    <ItemGroup>
-        <Folder Include="Content\Img\test" />
-    </ItemGroup>
 </Project>

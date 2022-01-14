@@ -4,11 +4,11 @@ namespace MonogameTetris.TetrisLib
     {
         public int DelayTime;
         public int RepeatTime;
-        
+
         public PlayerSettings(int delayTime, int repeatTime)
         {
-            this.DelayTime = delayTime;
-            this.RepeatTime = repeatTime;
+            DelayTime = delayTime;
+            RepeatTime = repeatTime;
         }
     }
 }

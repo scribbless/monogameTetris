@@ -11,7 +11,7 @@ namespace MonogameTetris.TetrisLib
         private readonly PieceDictionary _pieceDictionary = new PieceDictionary();
 
         //render board function
-        public void DrawBoard(int sizeX, int sizeY, int posX, int posY, int tileSize, int boardPadding,
+        public static void DrawBoard(int sizeX, int sizeY, int posX, int posY, int tileSize, int boardPadding,
             SpriteBatch spriteBatch, Dictionary<int, Color> colorDict, int[,] boardArray, Texture2D squareTexture)
         {
             for (var i = 0; i < sizeX; i++)
@@ -36,7 +36,7 @@ namespace MonogameTetris.TetrisLib
 
             return boardArray1;
         }
-        
+
         public int[,] ReturnBoardWithGhostPiece(int[,] boardArray1, ActivePiece piece)
         {
             var pieceShape = _pieceDictionary.GetTet(piece.PieceType, piece.RotState);
@@ -51,14 +51,13 @@ namespace MonogameTetris.TetrisLib
         }
 
         //check if any lines are full
-        public List<int> CheckLines(int[,] boardArray)
+        private static List<int> CheckLines(int[,] boardArray)
         {
             var lines = new List<int>();
-            bool lineCheck;
 
             for (var i = 0; i < 20; i++)
             {
-                lineCheck = true;
+                var lineCheck = true;
                 for (var j = 0; j < 10; j++)
                     if (boardArray[j, i] == 0)
                     {
@@ -73,7 +72,7 @@ namespace MonogameTetris.TetrisLib
         }
 
         //remove row from board
-        public int[,] ClearRow(int[,] boardArray, int row)
+        private static int[,] ClearRow(int[,] boardArray, int row)
         {
             var blankArray = new int[10, 20];
 
@@ -88,24 +87,25 @@ namespace MonogameTetris.TetrisLib
             return blankArray;
         }
 
-        public int ClearLines(ref int[,] boardArray, int[,] staticBoardArray, ref int backToBack, bool lastMoveIsSpin, ActivePiece activePiece, bool wasLastWallkickUsed)
+        public static int ClearLines(ref int[,] boardArray, int[,] staticBoardArray, ref int backToBack,
+            bool lastMoveIsSpin,
+            ActivePiece activePiece, bool wasLastWallkickUsed, ref int comboCount)
         {
             var lines = CheckLines(boardArray);
-            
+
             //0 = no tspin 1 = tspin mini 2 = tspin
             var spinType = 0;
-            
+
             //
             var garbageSent = 0;
 
             //check for t spin
             if (activePiece.PieceType == 7)
-            {
                 if (lastMoveIsSpin)
                 {
                     var cornerCount = 0;
 
-                    if (activePiece.CurrentLocation.X + 0 > 0 && activePiece.CurrentLocation.Y > 0)
+                    if (activePiece.CurrentLocation.X + 0 > 0 && activePiece.CurrentLocation.Y + 0 > 0)
                     {
                         if (staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 0] != 0)
                             cornerCount++;
@@ -115,7 +115,7 @@ namespace MonogameTetris.TetrisLib
                         cornerCount++;
                     }
 
-                    if (activePiece.CurrentLocation.X + 2 < 10 && activePiece.CurrentLocation.Y > 0)
+                    if (activePiece.CurrentLocation.X + 2 < 10 && activePiece.CurrentLocation.Y + 0 > 0)
                     {
                         if (staticBoardArray[activePiece.CurrentLocation.X + 2, activePiece.CurrentLocation.Y + 0] != 0)
                             cornerCount++;
@@ -125,7 +125,7 @@ namespace MonogameTetris.TetrisLib
                         cornerCount++;
                     }
 
-                    if (activePiece.CurrentLocation.X + 0 > 0 && activePiece.CurrentLocation.Y < 20)
+                    if (activePiece.CurrentLocation.X + 0 > 0 && activePiece.CurrentLocation.Y + 2 < 20)
                     {
                         if (staticBoardArray[activePiece.CurrentLocation.X + 0, activePiece.CurrentLocation.Y + 2] != 0)
                             cornerCount++;
@@ -135,7 +135,7 @@ namespace MonogameTetris.TetrisLib
                         cornerCount++;
                     }
 
-                    if (activePiece.CurrentLocation.X + 0 < 10 && activePiece.CurrentLocation.Y < 20)
+                    if (activePiece.CurrentLocation.X + 2 < 10 && activePiece.CurrentLocation.Y + 2 < 20)
                     {
                         if (staticBoardArray[activePiece.CurrentLocation.X + 2, activePiece.CurrentLocation.Y + 2] != 0)
                             cornerCount++;
@@ -147,7 +147,6 @@ namespace MonogameTetris.TetrisLib
 
 
                     if (cornerCount >= 3)
-                    {
                         switch (activePiece.RotState)
                         {
                             case 0:
@@ -155,13 +154,9 @@ namespace MonogameTetris.TetrisLib
                                         activePiece.CurrentLocation.Y + 0] != 0 &&
                                     staticBoardArray[activePiece.CurrentLocation.X + 2,
                                         activePiece.CurrentLocation.Y + 0] != 0)
-                                {
                                     spinType = 2;
-                                }
                                 else
-                                {
                                     spinType = wasLastWallkickUsed ? 2 : 1;
-                                }
 
                                 break;
                             case 1:
@@ -169,13 +164,9 @@ namespace MonogameTetris.TetrisLib
                                         activePiece.CurrentLocation.Y + 0] != 0 &&
                                     staticBoardArray[activePiece.CurrentLocation.X + 2,
                                         activePiece.CurrentLocation.Y + 2] != 0)
-                                {
                                     spinType = 2;
-                                }
                                 else
-                                {
                                     spinType = wasLastWallkickUsed ? 2 : 1;
-                                }
 
                                 break;
                             case 2:
@@ -183,13 +174,9 @@ namespace MonogameTetris.TetrisLib
                                         activePiece.CurrentLocation.Y + 2] != 0 &&
                                     staticBoardArray[activePiece.CurrentLocation.X + 2,
                                         activePiece.CurrentLocation.Y + 2] != 0)
-                                {
                                     spinType = 2;
-                                }
                                 else
-                                {
                                     spinType = wasLastWallkickUsed ? 2 : 1;
-                                }
 
                                 break;
                             case 3:
@@ -197,24 +184,15 @@ namespace MonogameTetris.TetrisLib
                                         activePiece.CurrentLocation.Y + 0] != 0 &&
                                     staticBoardArray[activePiece.CurrentLocation.X + 0,
                                         activePiece.CurrentLocation.Y + 2] != 0)
-                                {
                                     spinType = 2;
-                                }
                                 else
-                                {
                                     spinType = wasLastWallkickUsed ? 2 : 1;
-                                }
 
                                 break;
                         }
-                    }
                 }
-            }
-            
-            if (backToBack == 1 && spinType != 0)
-            {
-                garbageSent += 2;
-            }
+
+            if (backToBack == 1 && spinType != 0) garbageSent += 2;
 
             //conditions for garbage sent
             //if normal tspin
@@ -232,7 +210,6 @@ namespace MonogameTetris.TetrisLib
             else
             {
                 if (lines.Count >= 2)
-                {
                     switch (lines.Count)
                     {
                         case 2:
@@ -243,34 +220,51 @@ namespace MonogameTetris.TetrisLib
                             break;
                         case 4:
                             garbageSent = 4;
-                            if (backToBack == 1)
-                            {
-                                garbageSent += 2;
-                            }
+                            if (backToBack == 1) garbageSent += 2;
                             backToBack = 1;
                             break;
                     }
-                }
             }
 
-            //clear lines
+            if (lines.Count != 0)
+            {
+                comboCount++;
+
+                garbageSent += comboCount switch
+                {
+                    0 => 0,
+                    1 => 0,
+                    2 => 1,
+                    3 => 1,
+                    4 => 2,
+                    5 => 2,
+                    6 => 3,
+                    7 => 3,
+                    8 => 4,
+                    9 => 4,
+                    10 => 4,
+                    11 => 4,
+                    12 => 4,
+                    _ => 5
+                };
+            }
+            else comboCount = -1;
+
+                //clear lines
             boardArray = lines.Aggregate(boardArray, ClearRow);
 
             //check for perfect clear
             if (boardArray.Cast<int>().Sum() != 0) return garbageSent;
-            
+
             garbageSent = 10;
-            if (backToBack == 1)
-            {
-                garbageSent += 2;
-            }
+            if (backToBack == 1) garbageSent += 2;
             backToBack = 1;
 
             return garbageSent;
         }
 
         //draw queue
-        public void DrawQueue(List<int> queue, Vector2 position, int tileSize, int boardPadding,
+        public static void DrawQueue(List<int> queue, Vector2 position, int tileSize, int boardPadding,
             SpriteBatch spriteBatch, Dictionary<int, Color> colorDict, Texture2D squareTexture,
             PieceDictionary pieceDictionary)
         {
@@ -290,7 +284,7 @@ namespace MonogameTetris.TetrisLib
         }
 
         //draw held piece
-        public void DrawHeld(int pieceType, Vector2 position, int tileSize, int boardPadding,
+        public static void DrawHeld(int pieceType, Vector2 position, int tileSize, int boardPadding,
             SpriteBatch spriteBatch, Dictionary<int, Color> colorDict, Texture2D squareTexture,
             PieceDictionary pieceDictionary)
         {
@@ -310,45 +304,43 @@ namespace MonogameTetris.TetrisLib
             }
         }
 
-        public int[,] AddGarbageRow(int[,] boardArray, ref bool causesLoss, int holePlacement)
+        private static int[,] AddGarbageRow(int[,] boardArray, ref bool causesLoss, int holePlacement)
         {
+            //Console.Write("added garbage row\n");
             var blankArray = new int[10, 20];
             Array.Clear(blankArray, 0, blankArray.Length);
-            
+
             for (var i = 0; i < 10; i++)
             {
+                //Console.Write(boardArray[i, 0].ToString());
                 if (boardArray[i, 0] == 0) continue;
+                //Console.Write("Causes loss!");
                 causesLoss = true;
                 return boardArray;
             }
-            
+
             for (var i = 1; i < 20; i++)
             for (var j = 0; j < 10; j++)
-            {
-                
                 blankArray[j, i - 1] = boardArray[j, i];
-            }
-            
+
             for (var i = 0; i < 10; i++)
-            {
                 if (i != holePlacement)
-                {
                     blankArray[i, 19] = 1;
-                }
-            }
-            
+
             return blankArray;
         }
 
-        public int[,] AddGarbage(int[,] boardArray, int garbageData, ref bool causesLoss)
+        public static bool AddGarbage(ref int[,] boardArray, int garbageData)
         {
+            //Console.Write("garbage added");
             var r = new Random();
-            for (var i = 0; i < garbageData; i++)
-            {
-                boardArray = AddGarbageRow(boardArray, ref causesLoss, r.Next(0, 9));
-            }
+            var causesLoss = false;
 
-            return boardArray;
+            var holePlacement = r.Next(0, 9);
+
+            for (var i = 0; i < garbageData; i++) boardArray = AddGarbageRow(boardArray, ref causesLoss, holePlacement);
+
+            return causesLoss;
         }
     }
 }

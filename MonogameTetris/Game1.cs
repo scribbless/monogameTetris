@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,16 +9,17 @@ namespace MonogameTetris
 {
     public class Game1 : Game
     {
+        private TetrisGame _ai;
+        private bool _causesLoss = false;
         private SpriteFont _font;
         private FrameCounter _frameCounter = new FrameCounter();
+        private TetrisGame _player;
         private SpriteBatch _spriteBatch;
         private Color[] _squareData;
         private Texture2D _squareTexture;
         private string _testText;
         private int _tileSize;
-        private int _gravityIntervalTime;
-        private TetrisGame _player;
-        private bool _causesLoss = false;
+
 
 
         public Game1()
@@ -31,20 +31,12 @@ namespace MonogameTetris
             IsMouseVisible = true;
         }
 
-        protected override void Initialize()
-        {
-            // TODO: Add your initialization logic here
-
-            base.Initialize();
-        }
-
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
             // TODO: use this.Content to load your game content here
             _font = Content.Load<SpriteFont>("Font/Akira");
-            
+
             //SETUP VARIABLES
             //tile size = 20 board padding = 0
             _tileSize = 20;
@@ -59,6 +51,9 @@ namespace MonogameTetris
 
             _player = new TetrisGame(true, new BoardSettings(20, 0, new IntVector2(100, 100), _squareTexture, _font),
                 new PlayerSettings(300, 30));
+
+            _ai = new TetrisGame(false, new BoardSettings(20, 0, new IntVector2(800, 100), _squareTexture, _font),
+                new PlayerSettings(300, 30));
         }
 
         protected override void Update(GameTime gameTime)
@@ -71,6 +66,10 @@ namespace MonogameTetris
             _testText = string.Join(" ", Keyboard.GetState().GetPressedKeys());
 
             _player.Update(gameTime);
+            _ai.Update(gameTime);
+
+            _player.ReceiveGarbage(ref _ai.SendGarbage());
+            _ai.ReceiveGarbage(ref _player.SendGarbage());
 
             base.Update(gameTime);
         }
@@ -83,6 +82,7 @@ namespace MonogameTetris
 
             //DRAW PLAYER BOARD
             _player.Draw(gameTime, _spriteBatch);
+            _ai.Draw(gameTime, _spriteBatch);
 
             // Finds the center of the string in coordinates inside the text rectangle
             var textMiddlePoint = _font.MeasureString(_testText) / 2;

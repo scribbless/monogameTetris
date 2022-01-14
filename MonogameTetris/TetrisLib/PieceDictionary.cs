@@ -5,9 +5,7 @@ namespace MonogameTetris.TetrisLib
 {
     public class PieceDictionary
     {
-        private int[,] _tet;
-
-        public Dictionary<int, int[,]> NegativeDegWallKicks = new Dictionary<int, int[,]>
+        private readonly Dictionary<int, int[,]> _negativeDegWallKicks = new Dictionary<int, int[,]>
         {
             //0 -> 3
             {0, new[,] {{0, 0}, {1, 0}, {1, 1}, {0, -2}, {1, -2}}},
@@ -19,7 +17,7 @@ namespace MonogameTetris.TetrisLib
             {1, new[,] {{0, 0}, {1, 0}, {1, -1}, {0, 2}, {1, 2}}}
         };
 
-        public Dictionary<int, int[,]> NegativeDegWallKicksI = new Dictionary<int, int[,]>
+        private readonly Dictionary<int, int[,]> _negativeDegWallKicksI = new Dictionary<int, int[,]>
         {
             //0 -> 3
             {0, new[,] {{0, 0}, {-1, 0}, {2, 0}, {-1, 2}, {2, -1}}},
@@ -31,7 +29,7 @@ namespace MonogameTetris.TetrisLib
             {1, new[,] {{0, 0}, {2, 0}, {-1, 0}, {2, 1}, {-1, -2}}}
         };
 
-        public Dictionary<int, int[,]> PositiveDegWallKicks = new Dictionary<int, int[,]>
+        private readonly Dictionary<int, int[,]> _positiveDegWallKicks = new Dictionary<int, int[,]>
         {
             //0 -> 1
             {0, new[,] {{0, 0}, {-1, 0}, {-1, 1}, {0, -2}, {-1, -2}}},
@@ -43,7 +41,7 @@ namespace MonogameTetris.TetrisLib
             {3, new[,] {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}}
         };
 
-        public Dictionary<int, int[,]> PositiveDegWallKicksI = new Dictionary<int, int[,]>
+        private readonly Dictionary<int, int[,]> _positiveDegWallKicksI = new Dictionary<int, int[,]>
         {
             //0 -> 1
             {0, new[,] {{0, 0}, {-2, 0}, {1, 0}, {-2, -1}, {1, 2}}},
@@ -55,7 +53,7 @@ namespace MonogameTetris.TetrisLib
             {3, new[,] {{0, 0}, {1, 0}, {-2, 0}, {1, -2}, {-2, 1}}}
         };
 
-        public Dictionary<int, int[,,]> TetrominoDictionary = new Dictionary<int, int[,,]>
+        private readonly Dictionary<int, int[,,]> _tetrominoDictionary = new Dictionary<int, int[,,]>
         {
             {
                 //I piece
@@ -280,36 +278,28 @@ namespace MonogameTetris.TetrisLib
             }
         };
 
+        private int[,] _tet;
+
         public int[,] GetWallKick(bool isI, bool isPos, int rotState)
         {
-            if (isI)
-                if (isPos)
-                    return PositiveDegWallKicksI[rotState];
-                else
-                    return NegativeDegWallKicksI[rotState];
-            if (isPos)
-                return PositiveDegWallKicks[rotState];
-            return NegativeDegWallKicks[rotState];
+            if (isI) return isPos ? _positiveDegWallKicksI[rotState] : _negativeDegWallKicksI[rotState];
+            return isPos ? _positiveDegWallKicks[rotState] : _negativeDegWallKicks[rotState];
         }
 
         public Dictionary<int, int[,,]> GetTetDict()
         {
-            return TetrominoDictionary;
+            return _tetrominoDictionary;
         }
 
         public int[,] GetTet(int pieceType, int rotState)
         {
-            if (pieceType == 2)
-                _tet = new int[4, 4];
-            else
-                _tet = new int[3, 3];
+            _tet = pieceType == 2 ? new int[4, 4] : new int[3, 3];
 
             Array.Clear(_tet, 0, _tet.Length);
-            var tetTemp = 0;
             for (var i = 0; i < Math.Sqrt(_tet.Length); i++)
             for (var j = 0; j < Math.Sqrt(_tet.Length); j++)
             {
-                tetTemp = TetrominoDictionary[pieceType][rotState, i, j];
+                var tetTemp = _tetrominoDictionary[pieceType][rotState, i, j];
                 _tet[i, j] = tetTemp;
             }
 

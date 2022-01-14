@@ -66,72 +66,54 @@ namespace MonogameTetris.TetrisLib
             if (_oldKeyboardState.IsKeyUp(key) && _newKeyboardState.IsKeyDown(key))
                 return true;
 
-            if (currentTime - startTime > delayTime && currentTime - lastTime > repeatTime && IsCurPress(key))
-                return true;
-
-            return false;
+            return currentTime - startTime > delayTime && currentTime - lastTime > repeatTime && IsCurPress(key);
         }
 
         public bool RepeatPress(Keys key, int repeatTime, double lastTime, double currentTime)
         {
-            if (currentTime - lastTime > repeatTime && IsCurPress(key))
-                return true;
-
-            return false;
+            return currentTime - lastTime > repeatTime && IsCurPress(key);
         }
 
         public bool IsNewMousePress(MouseButtons button)
         {
-            switch (button)
+            return button switch
             {
-                case MouseButtons.LeftButton:
-                    return _oldMouseState.LeftButton == ButtonState.Released &&
-                           _newMouseState.LeftButton == ButtonState.Pressed;
-                case MouseButtons.MiddleButton:
-                    return _oldMouseState.MiddleButton == ButtonState.Released &&
-                           _newMouseState.MiddleButton == ButtonState.Pressed;
-                case MouseButtons.RightButton:
-                    return _oldMouseState.RightButton == ButtonState.Released &&
-                           _newMouseState.RightButton == ButtonState.Pressed;
-                default:
-                    return false;
-            }
+                MouseButtons.LeftButton => _oldMouseState.LeftButton == ButtonState.Released &&
+                                           _newMouseState.LeftButton == ButtonState.Pressed,
+                MouseButtons.MiddleButton => _oldMouseState.MiddleButton == ButtonState.Released &&
+                                             _newMouseState.MiddleButton == ButtonState.Pressed,
+                MouseButtons.RightButton => _oldMouseState.RightButton == ButtonState.Released &&
+                                            _newMouseState.RightButton == ButtonState.Pressed,
+                _ => false
+            };
         }
 
         public bool IsCurMousePress(MouseButtons button)
         {
-            switch (button)
+            return button switch
             {
-                case MouseButtons.LeftButton:
-                    return _oldMouseState.LeftButton == ButtonState.Pressed &&
-                           _newMouseState.LeftButton == ButtonState.Pressed;
-                case MouseButtons.MiddleButton:
-                    return _oldMouseState.MiddleButton == ButtonState.Pressed &&
-                           _newMouseState.MiddleButton == ButtonState.Pressed;
-                case MouseButtons.RightButton:
-                    return _oldMouseState.RightButton == ButtonState.Pressed &&
-                           _newMouseState.RightButton == ButtonState.Pressed;
-                default:
-                    return false;
-            }
+                MouseButtons.LeftButton => _oldMouseState.LeftButton == ButtonState.Pressed &&
+                                           _newMouseState.LeftButton == ButtonState.Pressed,
+                MouseButtons.MiddleButton => _oldMouseState.MiddleButton == ButtonState.Pressed &&
+                                             _newMouseState.MiddleButton == ButtonState.Pressed,
+                MouseButtons.RightButton => _oldMouseState.RightButton == ButtonState.Pressed &&
+                                            _newMouseState.RightButton == ButtonState.Pressed,
+                _ => false
+            };
         }
 
         public bool IsOldMousePress(MouseButtons button)
         {
-            switch (button)
+            return button switch
             {
-                case MouseButtons.LeftButton:
-                    return _oldMouseState.LeftButton == ButtonState.Pressed &&
-                           _newMouseState.LeftButton == ButtonState.Released;
-                case MouseButtons.MiddleButton:
-                    return _oldMouseState.MiddleButton == ButtonState.Pressed &&
-                           _newMouseState.MiddleButton == ButtonState.Released;
-                case MouseButtons.RightButton:
-                    return _oldMouseState.RightButton == ButtonState.Pressed &&
-                           _newMouseState.RightButton == ButtonState.Released;
-                default:
-                    return false;
-            }
+                MouseButtons.LeftButton => _oldMouseState.LeftButton == ButtonState.Pressed &&
+                                           _newMouseState.LeftButton == ButtonState.Released,
+                MouseButtons.MiddleButton => _oldMouseState.MiddleButton == ButtonState.Pressed &&
+                                             _newMouseState.MiddleButton == ButtonState.Released,
+                MouseButtons.RightButton => _oldMouseState.RightButton == ButtonState.Pressed &&
+                                            _newMouseState.RightButton == ButtonState.Released,
+                _ => false
+            };
         }
     }
 }
