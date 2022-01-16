@@ -91,6 +91,12 @@ namespace MonogameTetris
                 (int) Math.Round(Window.ClientBounds.Height / 1.2f));
             _spriteBatch.DrawString(_font, _testText, position, Black, 0, textMiddlePoint, 1.0f, SpriteEffects.None,
                 0.5f);
+            
+            var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _frameCounter.Update(deltaTime);
+            var fps = string.Format("FPS: {0}", _frameCounter.AverageFramesPerSecond);
+            _spriteBatch.DrawString(_font, fps, new Vector2(1, 1), Color.Black);
+            
             _spriteBatch.End();
 
             base.Draw(gameTime);

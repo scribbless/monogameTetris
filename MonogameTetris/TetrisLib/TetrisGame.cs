@@ -258,7 +258,17 @@ namespace MonogameTetris.TetrisLib
                 }
                 else if (_inputLib.IsNewPress(Keys.G))
                 {
-                    TetrisUtil.AddGarbage(ref _staticBoardArray, 1);
+                    Console.Write(AiFunctions.FindPossiblePositions(_activePiece.PieceType, _heldPiece, _staticBoardArray).Count.ToString());
+                    Console.Write("\n");
+                    foreach (var item in AiFunctions.FindPossiblePositions(_activePiece.PieceType, _heldPiece, _staticBoardArray))
+                    {
+                        Console.Write(item.Position.X.ToString());
+                        Console.Write(" ");
+                        Console.Write(item.Position.Y.ToString());
+                        Console.Write(", ");
+                        Console.Write(item.Rotation.ToString());
+                        Console.Write("\n");
+                    }
                 }
             }
 
@@ -267,6 +277,8 @@ namespace MonogameTetris.TetrisLib
             {
                 //update time since last gravity
                 _lastTimeUpdate = gameTime.TotalGameTime.TotalMilliseconds;
+                
+                //Console.Write(_activePiece.CurrentLocation.X.ToString());
 
                 //if touching block
                 if (_activePiece.IsTouchingBlock(_staticBoardArray))
@@ -375,14 +387,7 @@ namespace MonogameTetris.TetrisLib
                 _boardSettings.TileSize, _boardSettings.BoardPadding, spriteBatch, _colorDict,
                 _boardSettings.SquareTexture, _pieceDictionary);
 
-            //FPS COUNTER
-            /*
-            var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _frameCounter.Update(deltaTime);
-            var fps = string.Format("FPS: {0}", _frameCounter.AverageFramesPerSecond);
-            _spriteBatch.DrawString(font, fps, new Vector2(1, 1), Color.Black);
-            */
-            if (IsHuman) spriteBatch.DrawString(_boardSettings.Font, _garbageSent.ToString(), new Vector2(1, 1), Black);
+            //if (IsHuman) spriteBatch.DrawString(_boardSettings.Font, _garbageSent.ToString(), new Vector2(1, 1), Black);
         }
     }
 }
