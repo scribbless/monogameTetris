@@ -4,9 +4,11 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>/Users/cass/RiderProjects/monogameTest/monogameTest/Content/img/test/lp.png</File>
+    <File>C:/Users/cass7/RiderProjects/monogameTetris/MonogameTetris/Content/img/test/lp.png</File>
+    <File>C:/Users/cass7/RiderProjects/monogameTetris/MonogameTetris/Content/Font/Akira.spritefont</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

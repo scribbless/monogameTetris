@@ -18,7 +18,7 @@ namespace MonogameTetris.TetrisLib
             SideLength = sideLength;
         }
 
-        private bool IsValidMove(int[,] boardArray, int newRotState, IntVector2 wallKick)
+        public bool IsValidMove(int[,] boardArray, int newRotState, IntVector2 wallKick)
         {
             //Console.Write(wallKick.x);
             //Console.Write(" ");
@@ -247,6 +247,36 @@ namespace MonogameTetris.TetrisLib
             PieceType = pieceTypeI;
             RotState = 0;
             _wasLastWallkickUsed = false;
+        }
+
+        public bool CanSeeRoof(int[,] boardArray)
+        {
+            while (true)
+            {
+                var pieceShape = _pieceDictionary.GetTet(this.PieceType, this.RotState);
+                var pieceShapeHeights = new []{0, 0, 0};
+                
+                for (var y = 0; y < 3; y++)
+                {
+                    for (var x = 0; x < 3; x++)
+                    {
+                        if (pieceShape[x, y] != 0) pieceShapeHeights[y] = x;
+                    }
+                }
+                
+                for (var i = 0; i < 3; i++)
+                {
+                    for (var j = this.CurrentLocation.Y + pieceShapeHeights[i]; j > 1; j--)
+                    {
+                        if (boardArray[j, i] != 0)
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
         }
     }
 }

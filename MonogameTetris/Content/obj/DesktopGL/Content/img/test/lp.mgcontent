@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>/Users/cass/RiderProjects/monogameTest/monogameTest/Content/img/test/lp.png</SourceFile>
-  <SourceTime>2021-10-08T05:15:37.4607801+01:00</SourceTime>
-  <DestFile>/Users/cass/RiderProjects/monogameTest/monogameTest/Content/bin/DesktopGL/Content/img/test/lp.xnb</DestFile>
-  <DestTime>2021-11-04T10:55:11.0740184+00:00</DestTime>
+  <SourceFile>C:/Users/cass7/RiderProjects/monogameTetris/MonogameTetris/Content/img/test/lp.png</SourceFile>
+  <SourceTime>2022-01-16T19:39:46.6727164+00:00</SourceTime>
+  <DestFile>C:/Users/cass7/RiderProjects/monogameTetris/MonogameTetris/Content/bin/DesktopGL/Content/img/test/lp.xnb</DestFile>
+  <DestTime>2022-01-17T12:13:54.2986768+00:00</DestTime>
   <Importer>TextureImporter</Importer>
-  <ImporterTime>2020-08-10T17:17:54+01:00</ImporterTime>
+  <ImporterTime>2020-08-10T16:17:54+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
-  <ProcessorTime>2020-08-10T17:17:54+01:00</ProcessorTime>
+  <ProcessorTime>2020-08-10T16:17:54+01:00</ProcessorTime>
   <Parameters>
     <Key>ColorKeyColor</Key>
     <Value>255,0,255,255</Value>

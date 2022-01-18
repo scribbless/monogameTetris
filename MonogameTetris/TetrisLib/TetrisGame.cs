@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -258,17 +259,31 @@ namespace MonogameTetris.TetrisLib
                 }
                 else if (_inputLib.IsNewPress(Keys.G))
                 {
-                    Console.Write(AiFunctions.FindPossiblePositions(_activePiece.PieceType, _heldPiece, _staticBoardArray).Count.ToString());
-                    Console.Write("\n");
-                    foreach (var item in AiFunctions.FindPossiblePositions(_activePiece.PieceType, _heldPiece, _staticBoardArray))
-                    {
-                        Console.Write(item.Position.X.ToString());
-                        Console.Write(" ");
-                        Console.Write(item.Position.Y.ToString());
-                        Console.Write(", ");
-                        Console.Write(item.Rotation.ToString());
-                        Console.Write("\n");
-                    }
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
+                    // the code that you want to measure comes here
+                    var positions = AiFunctions.FindPossiblePositions(_activePiece.PieceType, _heldPiece, _staticBoardArray);
+                    watch.Stop();
+                    
+                    var elapsedMs = watch.ElapsedMilliseconds;
+                    Debug.Write(elapsedMs);
+                    Debug.Write("\n");
+                    // foreach (var item in AiFunctions.FindPossiblePositions(_activePiece.PieceType, _heldPiece, _staticBoardArray))
+                    // {
+                    //     Debug.Write(item.Position.X.ToString());
+                    //     Debug.Write(" ");
+                    //     Debug.Write(item.Position.Y.ToString());
+                    //     Debug.Write(", ");
+                    //     Debug.Write(item.Rotation.ToString());
+                    //     Debug.Write("\n");
+                    // }
+                } else if (_inputLib.IsNewPress(Keys.J))
+                {
+                    Debug.Write(_activePiece.CurrentLocation.X.ToString());
+                    Debug.Write(" ");
+                    Debug.Write(_activePiece.CurrentLocation.Y.ToString());
+                    Debug.Write(", ");
+                    Debug.Write(_activePiece.RotState.ToString());
+                    Debug.Write("\n");
                 }
             }
 

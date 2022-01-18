@@ -2,14 +2,14 @@
   "version": 3,
   "targets": {
     ".NETCoreApp,Version=v3.1": {
-      "MonoGame.Content.Builder.Task/3.8.1.2070-develop": {
+      "MonoGame.Content.Builder.Task/3.8.1.2071-develop": {
         "type": "package",
         "build": {
           "build/MonoGame.Content.Builder.Task.props": {},
           "build/MonoGame.Content.Builder.Task.targets": {}
         }
       },
-      "MonoGame.Framework.DesktopGL/3.8.1.2070-develop": {
+      "MonoGame.Framework.DesktopGL/3.8.1.2078-develop": {
         "type": "package",
         "dependencies": {
           "System.Numerics.Vectors": "4.5.0"
@@ -70,17 +70,17 @@
     }
   },
   "libraries": {
-    "MonoGame.Content.Builder.Task/3.8.1.2070-develop": {
-      "sha512": "21yswx0yY72JqrbRaznrCVQlnJOHj4ucBFYQbCtivbkHAUQD8Zs6CHCvSKY//17LajbCcV/IaEi1qEdlvM41DQ==",
+    "MonoGame.Content.Builder.Task/3.8.1.2071-develop": {
+      "sha512": "JLx6ozj72xvdNlYzfpKGmJNADx8pgw03hbV3GX91lIi2BviYc+d7roBr5eNNPFHxROI/fiSUAU20Q6a5OPlkJQ==",
       "type": "package",
-      "path": "monogame.content.builder.task/3.8.1.2070-develop",
+      "path": "monogame.content.builder.task/3.8.1.2071-develop",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
         "Icon.png",
         "build/MonoGame.Content.Builder.Task.props",
         "build/MonoGame.Content.Builder.Task.targets",
-        "monogame.content.builder.task.3.8.1.2070-develop.nupkg.sha512",
+        "monogame.content.builder.task.3.8.1.2071-develop.nupkg.sha512",
         "monogame.content.builder.task.nuspec",
         "tools/net5.0/any/ATI.TextureConverter.dll",
         "tools/net5.0/any/ATI.TextureConverter.dll.config",
@@ -154,10 +154,10 @@
         "tools/net5.0/any/x86/soft_oal.dll"
       ]
     },
-    "MonoGame.Framework.DesktopGL/3.8.1.2070-develop": {
-      "sha512": "pJbg8Kj5wafu8senbmpjhoiCA7bKAG2lZ79Y/v8P/AtHlCdUEgia5/ikLajOqdl7bd7Ju6xa9/DxkWUS8z8p8g==",
+    "MonoGame.Framework.DesktopGL/3.8.1.2078-develop": {
+      "sha512": "R6zoF8wNgAFKpcZMi4JRIk69X4y6aFSzZkwxgNZe9RMzFq8KVOAUy7FnCQbCBW3Pa44SWGhQHSwP5YLwoHmz6g==",
       "type": "package",
-      "path": "monogame.framework.desktopgl/3.8.1.2070-develop",
+      "path": "monogame.framework.desktopgl/3.8.1.2078-develop",
       "files": [
         ".nupkg.metadata",
         "Icon.png",
@@ -166,7 +166,7 @@
         "lib/net452/MonoGame.Framework.xml",
         "lib/netstandard2.0/MonoGame.Framework.dll",
         "lib/netstandard2.0/MonoGame.Framework.xml",
-        "monogame.framework.desktopgl.3.8.1.2070-develop.nupkg.sha512",
+        "monogame.framework.desktopgl.3.8.1.2078-develop.nupkg.sha512",
         "monogame.framework.desktopgl.nuspec",
         "runtimes/linux-x64/native/libSDL2-2.0.so.0",
         "runtimes/linux-x64/native/libopenal.so.1",
@@ -228,29 +228,31 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
-      "MonoGame.Content.Builder.Task >= 3.8.1.2070-develop",
-      "MonoGame.Framework.DesktopGL >= 3.8.1.2070-develop"
+      "MonoGame.Content.Builder.Task >= 3.8.1.2071-develop",
+      "MonoGame.Framework.DesktopGL >= 3.8.1.2078-develop"
     ]
   },
   "packageFolders": {
-    "/Users/cass/.nuget/packages/": {}
+    "C:\\Users\\cass7\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/cass/RiderProjects/monogameTetris/MonogameTetris/MonogameTetris.csproj",
+      "projectUniqueName": "C:\\Users\\cass7\\RiderProjects\\monogameTetris\\MonogameTetris\\MonogameTetris.csproj",
       "projectName": "MonogameTetris",
-      "projectPath": "/Users/cass/RiderProjects/monogameTetris/MonogameTetris/MonogameTetris.csproj",
-      "packagesPath": "/Users/cass/.nuget/packages/",
-      "outputPath": "/Users/cass/RiderProjects/monogameTetris/MonogameTetris/obj/",
+      "projectPath": "C:\\Users\\cass7\\RiderProjects\\monogameTetris\\MonogameTetris\\MonogameTetris.csproj",
+      "packagesPath": "C:\\Users\\cass7\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\cass7\\RiderProjects\\monogameTetris\\MonogameTetris\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/cass/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\cass7\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp3.1"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "http://teamcity.monogame.net/guestAuth/app/nuget/feed/_Root/default/v3/index.json": {},
         "https://api.nuget.org/v3/index.json": {}
       },
@@ -272,11 +274,11 @@
         "dependencies": {
           "MonoGame.Content.Builder.Task": {
             "target": "Package",
-            "version": "[3.8.1.2070-develop, )"
+            "version": "[3.8.1.2071-develop, )"
           },
           "MonoGame.Framework.DesktopGL": {
             "target": "Package",
-            "version": "[3.8.1.2070-develop, )"
+            "version": "[3.8.1.2078-develop, )"
           }
         },
         "imports": [
@@ -294,7 +296,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/5.0.402/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.102\\RuntimeIdentifierGraph.json"
       }
     }
   }
