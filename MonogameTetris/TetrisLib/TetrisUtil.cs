@@ -87,7 +87,7 @@ namespace MonogameTetris.TetrisLib
             return blankArray;
         }
 
-        public static int ClearLines(ref int[,] boardArray, int[,] staticBoardArray, ref int backToBack,
+        public static int ClearLines(ref int[,] boardArray, int[,] staticBoardArray, ref bool backToBack,
             bool lastMoveIsSpin,
             ActivePiece activePiece, bool wasLastWallkickUsed, ref int comboCount)
         {
@@ -191,8 +191,13 @@ namespace MonogameTetris.TetrisLib
                                 break;
                         }
                 }
+            
+            if (spinType == 0)
+            {
+                backToBack = false;
+            }
 
-            if (backToBack == 1 && spinType != 0) garbageSent += 2;
+            if (backToBack && spinType != 0) garbageSent += 2;
 
             //conditions for garbage sent
             //if normal tspin
@@ -220,8 +225,8 @@ namespace MonogameTetris.TetrisLib
                             break;
                         case 4:
                             garbageSent = 4;
-                            if (backToBack == 1) garbageSent += 2;
-                            backToBack = 1;
+                            if (backToBack) garbageSent += 2;
+                            backToBack = true;
                             break;
                     }
             }
@@ -257,8 +262,8 @@ namespace MonogameTetris.TetrisLib
             if (boardArray.Cast<int>().Sum() != 0) return garbageSent;
 
             garbageSent = 10;
-            if (backToBack == 1) garbageSent += 2;
-            backToBack = 1;
+            if (backToBack) garbageSent += 2;
+            backToBack = true;
 
             return garbageSent;
         }

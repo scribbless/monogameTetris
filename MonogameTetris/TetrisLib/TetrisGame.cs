@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -23,7 +24,7 @@ namespace MonogameTetris.TetrisLib
         private readonly List<int> _pieceQueuePart = new List<int> {2, 3, 4, 5, 6, 7, 8};
         private readonly PlayerSettings _playerSettings;
         private readonly TetrisUtil _tetrisUtil = new TetrisUtil();
-        private int _backToBack;
+        private bool _backToBack;
         private int[,] _boardArray;
         private bool _causesLoss;
 
@@ -259,15 +260,21 @@ namespace MonogameTetris.TetrisLib
                 }
                 else if (_inputLib.IsNewPress(Keys.G))
                 {
-                    var watch = System.Diagnostics.Stopwatch.StartNew();
-                    // the code that you want to measure comes here
-                    var positions = AiFunctions.FindPossiblePositions(_activePiece.PieceType, _heldPiece, _staticBoardArray);
-                    watch.Stop();
+                    // var watch = Stopwatch.StartNew();
+                    // // the code that you want to measure comes here
+                    // var positions = AiFunctions.FindPossiblePositionsAndPath(_activePiece.PieceType, _heldPiece, _staticBoardArray);
+                    // watch.Stop();
+                    //
+                    // var elapsedMs = watch.ElapsedMilliseconds;
+                    // Debug.Write(elapsedMs);
+                    // Debug.Write("\n");
                     
-                    var elapsedMs = watch.ElapsedMilliseconds;
-                    Debug.Write(elapsedMs);
-                    Debug.Write("\n");
-                    // foreach (var item in AiFunctions.FindPossiblePositions(_activePiece.PieceType, _heldPiece, _staticBoardArray))
+                    var positions = AiFunctions.FindPossiblePositionsAndPossibleMove(_activePiece.PieceType, _heldPiece, _staticBoardArray, _backToBack, _lastMoveIsSpin, _wasLastWallkickUsed, _comboCount);
+                    //var piecePositions = positions as PiecePosition[] ?? positions.ToArray();
+                    
+                    //Debug.WriteLine(piecePositions.Count());
+
+                    // foreach (var item in piecePositions)
                     // {
                     //     Debug.Write(item.Position.X.ToString());
                     //     Debug.Write(" ");
@@ -284,6 +291,11 @@ namespace MonogameTetris.TetrisLib
                     Debug.Write(", ");
                     Debug.Write(_activePiece.RotState.ToString());
                     Debug.Write("\n");
+                }
+                else if (_inputLib.IsNewPress(Keys.H))
+                {
+                    AiFunctions.CalculateCost(_boardArray, _activePiece.ReturnLockedInBoard(_boardArray), new[] {0},
+                        new PiecePosition(_activePiece.CurrentLocation, _activePiece.RotState), _activePiece.PieceType, _backToBack, _lastMoveIsSpin, _activePiece, _wasLastWallkickUsed, _comboCount);
                 }
             }
 
@@ -402,7 +414,7 @@ namespace MonogameTetris.TetrisLib
                 _boardSettings.TileSize, _boardSettings.BoardPadding, spriteBatch, _colorDict,
                 _boardSettings.SquareTexture, _pieceDictionary);
 
-            //if (IsHuman) spriteBatch.DrawString(_boardSettings.Font, _garbageSent.ToString(), new Vector2(1, 1), Black);
+            if (IsHuman) spriteBatch.DrawString(_boardSettings.Font, _activePiece.CanSeeRoof(_staticBoardArray).ToString(), new Vector2(500, 1), Black);
         }
     }
 }

@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 namespace MonogameTetris.TetrisLib
 {
     public class MovePermutations
     {
-        public readonly List<int> _movePermutations = new List<int>();
+        public readonly List<string> MovePermutationsList = new List<string>();
 
         /// <summary>
         /// Converts the given decimal number to the numeral system with the
@@ -17,43 +14,43 @@ namespace MonogameTetris.TetrisLib
         /// <param name="decimalNumber">The number to convert.</param>
         /// <param name="radix">The radix of the destination numeral system (in the range [2, 36]).</param>
         /// <returns></returns>
-        public static int DecimalToArbitrarySystem(long decimalNumber, int radix)
+        private static string DecimalToArbitrarySystem(long decimalNumber, int radix, int digitCount)
         {
-            const int BitsInLong = 64;
-            const string Digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const int bitsInLong = 64;
+            const string digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-            if (radix < 2 || radix > Digits.Length)
-                throw new ArgumentException("The radix must be >= 2 and <= " + Digits.Length.ToString());
+            if (radix < 2 || radix > digits.Length)
+                throw new ArgumentException("The radix must be >= 2 and <= " + digits.Length.ToString());
 
             if (decimalNumber == 0)
-                return 000;
+                return 0.ToString($"D{digitCount}");
 
-            int index = BitsInLong - 1;
-            long currentNumber = Math.Abs(decimalNumber);
-            char[] charArray = new char[BitsInLong];
+            var index = bitsInLong - 1;
+            var currentNumber = Math.Abs(decimalNumber);
+            var charArray = new char[bitsInLong];
 
             while (currentNumber != 0)
             {
-                int remainder = (int)(currentNumber % radix);
-                charArray[index--] = Digits[remainder];
+                var remainder = (int)(currentNumber % radix);
+                charArray[index--] = digits[remainder];
                 currentNumber = currentNumber / radix;
             }
 
-            string result = new String(charArray, index + 1, BitsInLong - index - 1);
+            var result = new string(charArray, index + 1, bitsInLong - index - 1);
             if (decimalNumber < 0)
             {
                 result = "-" + result;
             }
 
-            return int.Parse($"{result:D3}");
+            return int.Parse(result).ToString($"D{digitCount}");
         }
         
-        public MovePermutations()
+        public MovePermutations(int digitCount)
         {
-            _movePermutations.Clear();
-            for (var i = 0; i < 125; i++)
+            MovePermutationsList.Clear();
+            for (var i = 0; i < Math.Pow(5, digitCount); i++)
             {
-                _movePermutations.Add(DecimalToArbitrarySystem(i, 5));
+                MovePermutationsList.Add(DecimalToArbitrarySystem(i, 5, digitCount));
             }
         }
     }

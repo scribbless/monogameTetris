@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace MonogameTetris.TetrisLib
 {
     public class ActivePiece
@@ -251,32 +253,32 @@ namespace MonogameTetris.TetrisLib
 
         public bool CanSeeRoof(int[,] boardArray)
         {
-            while (true)
+            var pieceShape = _pieceDictionary.GetTet(PieceType, RotState);
+            int[] pieceShapeHeights = {-1, -1, -1, -1};
+            
+            for (var y = 0; y < SideLength; y++)
             {
-                var pieceShape = _pieceDictionary.GetTet(this.PieceType, this.RotState);
-                var pieceShapeHeights = new []{0, 0, 0};
-                
-                for (var y = 0; y < 3; y++)
+                for (var x = 0; x < SideLength; x++)
                 {
-                    for (var x = 0; x < 3; x++)
-                    {
-                        if (pieceShape[x, y] != 0) pieceShapeHeights[y] = x;
-                    }
+                    if (pieceShape[x, y] == 0) continue;
+                    pieceShapeHeights[y] = x;
+                    break;
                 }
-                
-                for (var i = 0; i < 3; i++)
-                {
-                    for (var j = this.CurrentLocation.Y + pieceShapeHeights[i]; j > 1; j--)
-                    {
-                        if (boardArray[j, i] != 0)
-                        {
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
             }
+
+            for (var i = 0; i < SideLength; i++)
+            {
+                for (var j = CurrentLocation.Y + pieceShapeHeights[i]; j > 1; j--)
+                {
+                    if (pieceShapeHeights[i] == -1) continue;
+                    if (boardArray[CurrentLocation.X + i, j] != 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
     }
 }

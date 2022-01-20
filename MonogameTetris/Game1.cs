@@ -20,6 +20,8 @@ namespace MonogameTetris
         private Texture2D _squareTexture;
         private string _testText;
         private int _tileSize;
+        private bool _paused;
+        private InputLib _inputLib = new InputLib();
 
 
 
@@ -64,12 +66,22 @@ namespace MonogameTetris
                 Exit();
             //show currently pressed keys
             _testText = string.Join(" ", Keyboard.GetState().GetPressedKeys());
+            
+            _inputLib.Update();
 
-            _player.Update(gameTime);
-            _ai.Update(gameTime);
+            if (!_paused)
+            {
+                _player.Update(gameTime);
+                _ai.Update(gameTime);
 
-            _player.ReceiveGarbage(ref _ai.SendGarbage());
-            _ai.ReceiveGarbage(ref _player.SendGarbage());
+                _player.ReceiveGarbage(ref _ai.SendGarbage());
+                _ai.ReceiveGarbage(ref _player.SendGarbage());
+            }
+
+            if (_inputLib.IsNewPress(Keys.P))
+            {
+                _paused = !_paused;
+            }
 
             base.Update(gameTime);
         }
@@ -95,7 +107,7 @@ namespace MonogameTetris
             var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             _frameCounter.Update(deltaTime);
             var fps = string.Format("FPS: {0}", _frameCounter.AverageFramesPerSecond);
-            _spriteBatch.DrawString(_font, fps, new Vector2(1, 1), Color.Black);
+            _spriteBatch.DrawString(_font, fps, new Vector2(1, 1), Black);
             
             _spriteBatch.End();
 

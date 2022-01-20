@@ -7,8 +7,8 @@ namespace MonogameTetris.TetrisLib
 
         public PiecePosition(IntVector2 position, int rotation)
         {
-            this.Position = position;
-            this.Rotation = rotation;
+            Position = position;
+            Rotation = rotation;
         }
     }
 }
