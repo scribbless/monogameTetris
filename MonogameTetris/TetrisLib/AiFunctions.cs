@@ -150,10 +150,8 @@ namespace MonogameTetris.TetrisLib
                         HolesNum++;
                         holesColumnCheck = true;
                     }
-
                     break;
                 }
-
                 if (holesColumnCheck) ColumnHolesNum++;
             }
 
@@ -218,20 +216,22 @@ namespace MonogameTetris.TetrisLib
                        (heuristicWeights[6] * VerticalTransitions) + (heuristicWeights[7] * Pits) +
                        (heuristicWeights[8] * DeepestWell);
             
-            return 0.5;
+            return cost;
         }
         
         //check through move permutations to see if a position is valid
-        public static string[] FindValidMove(int activePieceType, int[,] boardArray,
-            PiecePosition start)
+        private static string[] FindValidMove(int activePieceType, int[,] boardArray,
+            PiecePosition start, ActivePiece activePieceTemp, List<int[,]> tetData)
         {
             var pieceDictionary = new PieceDictionary();
             var validMoves = new List<int>();
-            var activePieceTemp = new ActivePiece(new IntVector2(start.Position.X, start.Position.Y), start.Rotation, activePieceType, activePieceType == 2 ? 4 : 3);
+            //var activePieceTemp = new ActivePiece(new IntVector2(start.Position.X, start.Position.Y), start.Rotation, activePieceType, activePieceType == 2 ? 4 : 3);
+            activePieceTemp.CurrentLocation = start.Position;
+            activePieceTemp.RotState = start.Rotation;
 
 
             //if just a hard drop can do the rotation
-            if (activePieceTemp.CanSeeRoof(boardArray))
+            if (activePieceTemp.CanSeeRoof(boardArray, tetData))
             {
                 return new[] {"888", activePieceTemp.CurrentLocation.X.ToString(), activePieceTemp.CurrentLocation.Y.ToString(), activePieceTemp.RotState.ToString()};
             }
@@ -252,15 +252,15 @@ namespace MonogameTetris.TetrisLib
                         case 0:
                             //check right
                             if (activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState,
-                                    new IntVector2(1, 0))) activePieceTemp.CurrentLocation.X -= 1;
+                                    new IntVector2(1, 0), true, tetData[activePieceTemp.RotState])) activePieceTemp.CurrentLocation.X -= 1;
                             break;
                         case 1:
                             //check left
-                            if (activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState, new IntVector2(-1, 0))) activePieceTemp.CurrentLocation.X += 1;
+                            if (activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState, new IntVector2(-1, 0), true, tetData[activePieceTemp.RotState])) activePieceTemp.CurrentLocation.X += 1;
                             break;
                         case 2:
                             //check down
-                            if (activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState, new IntVector2(0, -1))) activePieceTemp.CurrentLocation.Y -= 1;
+                            if (activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState, new IntVector2(0, -1), true, tetData[activePieceTemp.RotState])) activePieceTemp.CurrentLocation.Y -= 1;
                             break;
                         case 3:
                             //check rot R
@@ -268,7 +268,7 @@ namespace MonogameTetris.TetrisLib
                             {
                                 var wallkick = new IntVector2(pieceDictionary.GetWallKick(false, true, newRotStateR)[j, 0] * -1, pieceDictionary.GetWallKick(false, true, newRotStateR)[j, 1]);
 
-                                if (!activePieceTemp.IsValidMove(boardArray, newRotStateR, wallkick)) continue;
+                                if (!activePieceTemp.IsValidMove(boardArray, newRotStateR, wallkick, true, tetData[activePieceTemp.RotState])) continue;
                                 activePieceTemp.CurrentLocation.X += wallkick.X;
                                 activePieceTemp.CurrentLocation.Y += wallkick.Y;
                                 activePieceTemp.RotState = newRotStateR;
@@ -281,7 +281,7 @@ namespace MonogameTetris.TetrisLib
                             {
                                 var wallkick = new IntVector2(pieceDictionary.GetWallKick(false, false, newRotStateL)[j, 0] * -1, pieceDictionary.GetWallKick(false, false, newRotStateL)[j, 1] * -1);
 
-                                if (!activePieceTemp.IsValidMove(boardArray, newRotStateL, wallkick)) continue;
+                                if (!activePieceTemp.IsValidMove(boardArray, newRotStateL, wallkick, true, tetData[activePieceTemp.RotState])) continue;
                                 activePieceTemp.CurrentLocation.X += wallkick.X;
                                 activePieceTemp.CurrentLocation.Y += wallkick.Y;
                                 activePieceTemp.RotState = newRotStateL;
@@ -290,9 +290,9 @@ namespace MonogameTetris.TetrisLib
                             break;
                     }
 
-                    if (!activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState, new IntVector2(0, 0)))
+                    if (!activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState, new IntVector2(0, 0), true, tetData[activePieceTemp.RotState]))
                         continue;
-                    if (activePieceTemp.CanSeeRoof(boardArray))
+                    if (activePieceTemp.CanSeeRoof(boardArray, tetData))
                     {
                         //FORMAT: 0 - moves to perform AFTER dropping, 1 - position to drop to X, 1 - position to drop to Y, 1 - position to drop to ROTATION
                         return new[] {permutation[..(i + 1)], activePieceTemp.CurrentLocation.X.ToString(), activePieceTemp.CurrentLocation.Y.ToString(), activePieceTemp.RotState.ToString()};
@@ -306,13 +306,22 @@ namespace MonogameTetris.TetrisLib
             return new[] {"999"};
         }
         
-        public static IEnumerable<PossibleMove> FindPossiblePositionsAndPossibleMove(int activePieceType, int heldPieceType,
-            int[,] boardArray, bool backToBack, bool lastMoveIsSpin, bool wasLastWallkickUsed, int comboCount)
+        public static PossibleMove FindBestMoveAndPath(int activePieceType,
+            int[,] boardArray, bool backToBack, bool lastMoveIsSpin, bool wasLastWallkickUsed, int comboCount, double[] heuristicWeights)
         {
             var activePieceTemp = new ActivePiece(new IntVector2(4, 0), 0, activePieceType, activePieceType == 2 ? 4 : 3);
             var possiblePositions = new List<PossibleMove>();
+            var pieceDictionary = new PieceDictionary();
 
-           
+            var tetData = new List<int[,]>
+            {
+                pieceDictionary.GetTet(activePieceTemp.PieceType, 0),
+                pieceDictionary.GetTet(activePieceTemp.PieceType, 1),
+                pieceDictionary.GetTet(activePieceTemp.PieceType, 2),
+                pieceDictionary.GetTet(activePieceTemp.PieceType, 3)
+            };
+
+
             activePieceTemp.RotState = 0;
 
             if (activePieceType != 2 && activePieceType != 5)
@@ -326,7 +335,7 @@ namespace MonogameTetris.TetrisLib
                         {
                             activePieceTemp.CurrentLocation = new IntVector2(i, j);
                             if (!activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState,
-                                    new IntVector2(0, 0)))
+                                    new IntVector2(0, 0), true, tetData[activePieceTemp.RotState]))
                                 continue;
                             if (!activePieceTemp.IsTouchingBlock(boardArray))
                                 continue;
@@ -334,7 +343,45 @@ namespace MonogameTetris.TetrisLib
                             //Debug.WriteLine((i.ToString(), j.ToString()));
                             
                             var validMove = FindValidMove(activePieceType, boardArray,
-                                new PiecePosition(new IntVector2(i, j), activePieceTemp.RotState));
+                                new PiecePosition(new IntVector2(i, j), activePieceTemp.RotState), activePieceTemp, tetData);
+                            
+                            // if (i == 0 && j == 17 && activePieceTemp.RotState == 1)
+                            // {
+                            //     Debug.WriteLine($"yes: {validMove}");
+                            // }
+                            // Debug.WriteLine(validMove);
+                            
+                            if (validMove[0] != "999")
+                            {
+                                var cost = CalculateCost(boardArray, activePieceTemp.ReturnLockedInBoard(boardArray), heuristicWeights,
+                                    backToBack, lastMoveIsSpin, activePieceTemp, wasLastWallkickUsed, comboCount);
+
+                                possiblePositions.Add(new PossibleMove(new PiecePosition(new IntVector2(i, j), activePieceTemp.RotState), new PiecePosition(new IntVector2(int.Parse(validMove[1]), int.Parse(validMove[2])), int.Parse(validMove[3])), validMove[0], cost));
+                            }
+                        }
+                    }
+                }
+            }
+            else if (activePieceType == 2)
+            {
+                for (var rotstate = 0; rotstate < 4; rotstate++)
+                {
+                    activePieceTemp.RotState = rotstate;
+                    for (var i = -2; i <= 8; i++)
+                    {
+                        for (var j = 0; j <= 18; j++)
+                        {
+                            activePieceTemp.CurrentLocation = new IntVector2(i, j);
+                            if (!activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState,
+                                    new IntVector2(0, 0), true, tetData[activePieceTemp.RotState]))
+                                continue;
+                            if (!activePieceTemp.IsTouchingBlock(boardArray))
+                                continue;
+
+                            //Debug.WriteLine((i.ToString(), j.ToString()));
+                            
+                            var validMove = FindValidMove(activePieceType, boardArray,
+                                new PiecePosition(new IntVector2(i, j), activePieceTemp.RotState), activePieceTemp, tetData);
                             
                             // if (i == 0 && j == 17 && activePieceTemp.RotState == 1)
                             // {
@@ -353,8 +400,51 @@ namespace MonogameTetris.TetrisLib
                     }
                 }
             }
+            else
+            {
+                activePieceTemp.RotState = 0;
+                for (var i = -1; i <= 8; i++)
+                {
+                    for (var j = 1; j <= 18; j++)
+                    {
+                        activePieceTemp.CurrentLocation = new IntVector2(i, j);
+                        if (!activePieceTemp.IsValidMove(boardArray, activePieceTemp.RotState,
+                                new IntVector2(0, 0), true, tetData[0]))
+                            continue;
+                        if (!activePieceTemp.IsTouchingBlock(boardArray))
+                            continue;
 
-            return possiblePositions;
+                        //Debug.WriteLine((i.ToString(), j.ToString()));
+                        
+                        var validMove = FindValidMove(activePieceType, boardArray,
+                            new PiecePosition(new IntVector2(i, j), activePieceTemp.RotState), activePieceTemp, tetData);
+                        
+                        // if (i == 0 && j == 17 && activePieceTemp.RotState == 1)
+                        // {
+                        //     Debug.WriteLine($"yes: {validMove}");
+                        // }
+                        // Debug.WriteLine(validMove);
+                        
+                        if (validMove[0] != "999")
+                        {
+                            var cost = CalculateCost(boardArray, activePieceTemp.ReturnLockedInBoard(boardArray), new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+                                backToBack, lastMoveIsSpin, activePieceTemp, wasLastWallkickUsed, comboCount);
+
+                            possiblePositions.Add(new PossibleMove(new PiecePosition(new IntVector2(i, j), activePieceTemp.RotState), new PiecePosition(new IntVector2(int.Parse(validMove[1]), int.Parse(validMove[2])), int.Parse(validMove[3])), validMove[0], cost));
+                        }
+                    }
+                }
+            }
+
+            double highestCost = -10000000;
+            var bestMove = new PossibleMove();
+            foreach (var position in possiblePositions)
+            {
+                if (position.cost > highestCost) highestCost = position.cost;
+                bestMove = position;
+            }
+
+            return bestMove;
         }
     }
 }

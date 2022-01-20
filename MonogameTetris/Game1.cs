@@ -72,10 +72,10 @@ namespace MonogameTetris
             if (!_paused)
             {
                 _player.Update(gameTime);
-                _ai.Update(gameTime);
+                //_ai.Update(gameTime);
 
                 _player.ReceiveGarbage(ref _ai.SendGarbage());
-                _ai.ReceiveGarbage(ref _player.SendGarbage());
+                //_ai.ReceiveGarbage(ref _player.SendGarbage());
             }
 
             if (_inputLib.IsNewPress(Keys.P))
@@ -94,7 +94,7 @@ namespace MonogameTetris
 
             //DRAW PLAYER BOARD
             _player.Draw(gameTime, _spriteBatch);
-            _ai.Draw(gameTime, _spriteBatch);
+            //_ai.Draw(gameTime, _spriteBatch);
 
             // Finds the center of the string in coordinates inside the text rectangle
             var textMiddlePoint = _font.MeasureString(_testText) / 2;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace MonogameTetris.TetrisLib
@@ -20,14 +21,15 @@ namespace MonogameTetris.TetrisLib
             SideLength = sideLength;
         }
 
-        public bool IsValidMove(int[,] boardArray, int newRotState, IntVector2 wallKick)
+        public bool IsValidMove(int[,] boardArray, int newRotState, IntVector2 wallKick, bool useInputtedTet, int[,] tet)
         {
             //Console.Write(wallKick.x);
             //Console.Write(" ");
             //Console.Write(wallKick.y);
             //Console.Write("\n");
+            
+            var pieceShape = !useInputtedTet ? _pieceDictionary.GetTet(PieceType, newRotState) : tet;
 
-            var pieceShape = _pieceDictionary.GetTet(PieceType, newRotState);
             for (var i = 0; i < SideLength; i++)
             for (var j = 0; j < SideLength; j++)
                 //if not empty tile
@@ -73,7 +75,7 @@ namespace MonogameTetris.TetrisLib
                         var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
 
                         //check if wall kick is valid
-                        if (IsValidMove(boardArray, newRotState, wallKick)) return wallKick;
+                        if (IsValidMove(boardArray, newRotState, wallKick, false, null)) return wallKick;
                     }
 
                     return new IntVector2(10, 10);
@@ -91,7 +93,7 @@ namespace MonogameTetris.TetrisLib
                         var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
 
                         //check if wall kick is valid
-                        if (IsValidMove(boardArray, newRotState, wallKick))
+                        if (IsValidMove(boardArray, newRotState, wallKick, false, null))
                         {
                             if (i == 4) _wasLastWallkickUsed = true;
                             return wallKick;
@@ -127,7 +129,7 @@ namespace MonogameTetris.TetrisLib
                         var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
 
                         //check if wall kick is valid
-                        if (IsValidMove(boardArray, newRotState, wallKick)) return wallKick;
+                        if (IsValidMove(boardArray, newRotState, wallKick, false, null)) return wallKick;
                     }
 
                     return new IntVector2(10, 10);
@@ -146,7 +148,7 @@ namespace MonogameTetris.TetrisLib
                         var wallKick = new IntVector2(wallKickData[i, 0], wallKickData[i, 1] * -1);
 
                         //check if wall kick is valid
-                        if (!IsValidMove(boardArray, newRotState, wallKick)) continue;
+                        if (!IsValidMove(boardArray, newRotState, wallKick, false, null)) continue;
                         if (i == 4) _wasLastWallkickUsed = true;
                         return wallKick;
                     }
@@ -196,28 +198,28 @@ namespace MonogameTetris.TetrisLib
 
         public bool MoveRight(int[,] boardArray)
         {
-            if (IsValidMove(boardArray, RotState, new IntVector2(1, 0))) CurrentLocation.X++;
+            if (IsValidMove(boardArray, RotState, new IntVector2(1, 0), false, null)) CurrentLocation.X++;
             else return false;
             return true;
         }
 
         public bool MoveLeft(int[,] boardArray)
         {
-            if (IsValidMove(boardArray, RotState, new IntVector2(-1, 0))) CurrentLocation.X--;
+            if (IsValidMove(boardArray, RotState, new IntVector2(-1, 0), false, null)) CurrentLocation.X--;
             else return false;
             return true;
         }
 
         public bool MoveDown(int[,] boardArray)
         {
-            if (IsValidMove(boardArray, RotState, new IntVector2(0, 1))) CurrentLocation.Y++;
+            if (IsValidMove(boardArray, RotState, new IntVector2(0, 1), false, null)) CurrentLocation.Y++;
             else return false;
             return true;
         }
 
         public bool IsTouchingBlock(int[,] boardArray)
         {
-            return !IsValidMove(boardArray, RotState, new IntVector2(0, 1));
+            return !IsValidMove(boardArray, RotState, new IntVector2(0, 1), false, null);
         }
 
         public void HardDrop(int[,] boardArray)
@@ -251,9 +253,9 @@ namespace MonogameTetris.TetrisLib
             _wasLastWallkickUsed = false;
         }
 
-        public bool CanSeeRoof(int[,] boardArray)
+        public bool CanSeeRoof(int[,] boardArray, List<int[,]> tetData)
         {
-            var pieceShape = _pieceDictionary.GetTet(PieceType, RotState);
+            var pieceShape = tetData[RotState];
             int[] pieceShapeHeights = {-1, -1, -1, -1};
             
             for (var y = 0; y < SideLength; y++)

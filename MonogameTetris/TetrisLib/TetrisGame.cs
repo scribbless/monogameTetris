@@ -269,7 +269,7 @@ namespace MonogameTetris.TetrisLib
                     // Debug.Write(elapsedMs);
                     // Debug.Write("\n");
                     
-                    var positions = AiFunctions.FindPossiblePositionsAndPossibleMove(_activePiece.PieceType, _heldPiece, _staticBoardArray, _backToBack, _lastMoveIsSpin, _wasLastWallkickUsed, _comboCount);
+                    var positions = AiFunctions.FindBestMoveAndPath(_activePiece.PieceType, _staticBoardArray, _backToBack, _lastMoveIsSpin, _wasLastWallkickUsed, _comboCount, new double[]{1,1,1,1,1,1,1,1,1});
                     //var piecePositions = positions as PiecePosition[] ?? positions.ToArray();
                     
                     //Debug.WriteLine(piecePositions.Count());
@@ -297,7 +297,7 @@ namespace MonogameTetris.TetrisLib
                     var watch = Stopwatch.StartNew();
                     // the code that you want to measure comes here
                     var staticBoardArrayCopy = (int[,]) _staticBoardArray.Clone();
-                    var positions = AiFunctions.FindPossiblePositionsAndPossibleMove(_activePiece.PieceType, _heldPiece, staticBoardArrayCopy, _backToBack, _lastMoveIsSpin, _wasLastWallkickUsed, _comboCount);
+                    var positions = AiFunctions.FindBestMoveAndPath(_activePiece.PieceType, staticBoardArrayCopy, _backToBack, _lastMoveIsSpin, _wasLastWallkickUsed, _comboCount, new double[]{1,1,1,1,1,1,1,1,1});
                     watch.Stop();
                     
                     var elapsedMs = watch.ElapsedMilliseconds;
@@ -315,6 +315,10 @@ namespace MonogameTetris.TetrisLib
                     var elapsedMs = watch.ElapsedMilliseconds;
                     Debug.WriteLine($"time taken: {elapsedMs}MS");
                 }
+            }
+            else
+            {
+                
             }
 
             //gravity
@@ -432,7 +436,7 @@ namespace MonogameTetris.TetrisLib
                 _boardSettings.TileSize, _boardSettings.BoardPadding, spriteBatch, _colorDict,
                 _boardSettings.SquareTexture, _pieceDictionary);
 
-            if (IsHuman) spriteBatch.DrawString(_boardSettings.Font, _activePiece.CanSeeRoof(_staticBoardArray).ToString(), new Vector2(500, 1), Black);
+            //if (IsHuman) spriteBatch.DrawString(_boardSettings.Font, _activePiece.CanSeeRoof(_staticBoardArray).ToString(), new Vector2(500, 1), Black);
         }
     }
 }
