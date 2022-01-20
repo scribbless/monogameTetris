@@ -294,8 +294,26 @@ namespace MonogameTetris.TetrisLib
                 }
                 else if (_inputLib.IsNewPress(Keys.H))
                 {
-                    AiFunctions.CalculateCost(_boardArray, _activePiece.ReturnLockedInBoard(_boardArray), new[] {0},
-                        new PiecePosition(_activePiece.CurrentLocation, _activePiece.RotState), _activePiece.PieceType, _backToBack, _lastMoveIsSpin, _activePiece, _wasLastWallkickUsed, _comboCount);
+                    var watch = Stopwatch.StartNew();
+                    // the code that you want to measure comes here
+                    var staticBoardArrayCopy = (int[,]) _staticBoardArray.Clone();
+                    var positions = AiFunctions.FindPossiblePositionsAndPossibleMove(_activePiece.PieceType, _heldPiece, staticBoardArrayCopy, _backToBack, _lastMoveIsSpin, _wasLastWallkickUsed, _comboCount);
+                    watch.Stop();
+                    
+                    var elapsedMs = watch.ElapsedMilliseconds;
+                    Debug.WriteLine($"time taken: {elapsedMs}MS");
+                }
+                else if (_inputLib.IsNewPress(Keys.K))
+                {
+                    var watch = Stopwatch.StartNew();
+                    // the code that you want to measure comes here
+                    var staticBoardArrayCopy = (int[,]) _staticBoardArray.Clone();
+                    var cost = AiFunctions.CalculateCost(staticBoardArrayCopy, _activePiece.ReturnLockedInBoard(_staticBoardArray), new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+                        _backToBack, _lastMoveIsSpin, _activePiece, _wasLastWallkickUsed, _comboCount);
+                    watch.Stop();
+                    
+                    var elapsedMs = watch.ElapsedMilliseconds;
+                    Debug.WriteLine($"time taken: {elapsedMs}MS");
                 }
             }
 
