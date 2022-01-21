@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,16 +12,15 @@ namespace MonogameTetris
         private TetrisGame _ai;
         private bool _causesLoss = false;
         private SpriteFont _font;
-        private FrameCounter _frameCounter = new FrameCounter();
+        private readonly FrameCounter _frameCounter = new FrameCounter();
+        private readonly InputLib _inputLib = new InputLib();
+        private bool _paused;
         private TetrisGame _player;
         private SpriteBatch _spriteBatch;
         private Color[] _squareData;
         private Texture2D _squareTexture;
         private string _testText;
         private int _tileSize;
-        private bool _paused;
-        private InputLib _inputLib = new InputLib();
-
 
 
         public Game1()
@@ -51,7 +49,7 @@ namespace MonogameTetris
             _squareTexture.SetData(_squareData);
 
             //_boardSettings = new BoardSettings(20, 0, new Vector2(100, 100), _squareTexture);
-            
+
             /*  0 = AggregateHeight
                 1 = GarbageAmount
                 2 = HolesNum
@@ -63,11 +61,11 @@ namespace MonogameTetris
                 8 = DeepestWell
              */
 
-            _player = new TetrisGame(true, new BoardSettings(20, 0, new IntVector2(100, 100), _squareTexture, _font),
-                new PlayerSettings(300, 30), null);
+            _player = new TetrisGame(false, new BoardSettings(20, 0, new IntVector2(100, 100), _squareTexture, _font),
+                new PlayerSettings(300, 30), new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1});
 
             _ai = new TetrisGame(false, new BoardSettings(20, 0, new IntVector2(800, 100), _squareTexture, _font),
-                new PlayerSettings(300, 30), new double[]{-0.2, 1, -0.4, -0.2, -0.1, -0.1, -0.1, 0.5, 0.1});
+                new PlayerSettings(300, 30), new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1});
         }
 
         protected override void Update(GameTime gameTime)
@@ -77,7 +75,7 @@ namespace MonogameTetris
                 Exit();
             //show currently pressed keys
             _testText = string.Join(" ", Keyboard.GetState().GetPressedKeys());
-            
+
             _inputLib.Update();
 
             if (!_paused)
@@ -89,10 +87,7 @@ namespace MonogameTetris
                 _ai.ReceiveGarbage(ref _player.SendGarbage());
             }
 
-            if (_inputLib.IsNewPress(Keys.P))
-            {
-                _paused = !_paused;
-            }
+            if (_inputLib.IsNewPress(Keys.P)) _paused = !_paused;
 
             base.Update(gameTime);
         }
@@ -114,12 +109,12 @@ namespace MonogameTetris
                 (int) Math.Round(Window.ClientBounds.Height / 1.2f));
             _spriteBatch.DrawString(_font, _testText, position, Black, 0, textMiddlePoint, 1.0f, SpriteEffects.None,
                 0.5f);
-            
-            var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            var deltaTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
             _frameCounter.Update(deltaTime);
             var fps = string.Format("FPS: {0}", _frameCounter.AverageFramesPerSecond);
             _spriteBatch.DrawString(_font, fps, new Vector2(1, 1), Black);
-            
+
             _spriteBatch.End();
 
             base.Draw(gameTime);

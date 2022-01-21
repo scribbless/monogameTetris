@@ -191,11 +191,8 @@ namespace MonogameTetris.TetrisLib
                                 break;
                         }
                 }
-            
-            if (spinType == 0)
-            {
-                backToBack = false;
-            }
+
+            if (spinType == 0) backToBack = false;
 
             if (backToBack && spinType != 0) garbageSent += 2;
 
@@ -253,9 +250,12 @@ namespace MonogameTetris.TetrisLib
                     _ => 5
                 };
             }
-            else comboCount = -1;
+            else
+            {
+                comboCount = -1;
+            }
 
-                //clear lines
+            //clear lines
             boardArray = lines.Aggregate(boardArray, ClearRow);
 
             //check for perfect clear

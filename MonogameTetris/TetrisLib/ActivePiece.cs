@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace MonogameTetris.TetrisLib
 {
@@ -21,13 +20,14 @@ namespace MonogameTetris.TetrisLib
             SideLength = sideLength;
         }
 
-        public bool IsValidMove(int[,] boardArray, int newRotState, IntVector2 wallKick, bool useInputtedTet, int[,] tet)
+        public bool IsValidMove(int[,] boardArray, int newRotState, IntVector2 wallKick, bool useInputtedTet,
+            int[,] tet)
         {
             //Console.Write(wallKick.x);
             //Console.Write(" ");
             //Console.Write(wallKick.y);
             //Console.Write("\n");
-            
+
             var pieceShape = !useInputtedTet ? _pieceDictionary.GetTet(PieceType, newRotState) : tet;
 
             for (var i = 0; i < SideLength; i++)
@@ -258,27 +258,20 @@ namespace MonogameTetris.TetrisLib
         {
             var pieceShape = tetData[RotState];
             int[] pieceShapeHeights = {-1, -1, -1, -1};
-            
+
             for (var y = 0; y < SideLength; y++)
+            for (var x = 0; x < SideLength; x++)
             {
-                for (var x = 0; x < SideLength; x++)
-                {
-                    if (pieceShape[x, y] == 0) continue;
-                    pieceShapeHeights[y] = x;
-                    break;
-                }
+                if (pieceShape[x, y] == 0) continue;
+                pieceShapeHeights[y] = x;
+                break;
             }
 
             for (var i = 0; i < SideLength; i++)
+            for (var j = CurrentLocation.Y + pieceShapeHeights[i]; j > 1; j--)
             {
-                for (var j = CurrentLocation.Y + pieceShapeHeights[i]; j > 1; j--)
-                {
-                    if (pieceShapeHeights[i] == -1) continue;
-                    if (boardArray[CurrentLocation.X + i, j] != 0)
-                    {
-                        return false;
-                    }
-                }
+                if (pieceShapeHeights[i] == -1) continue;
+                if (boardArray[CurrentLocation.X + i, j] != 0) return false;
             }
 
             return true;
