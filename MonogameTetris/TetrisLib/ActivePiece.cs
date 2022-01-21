@@ -233,15 +233,16 @@ namespace MonogameTetris.TetrisLib
 
         public int[,] ReturnLockedInBoard(int[,] boardArray)
         {
+            var boardArrayCopy = (int[,]) boardArray.Clone();
             var pieceShape = _pieceDictionary.GetTet(PieceType, RotState);
             for (var i = 0; i < SideLength; i++)
             for (var j = 0; j < SideLength; j++)
             {
                 if (pieceShape[i, j] == 0) continue;
-                boardArray[CurrentLocation.X + j, CurrentLocation.Y + i] = pieceShape[i, j];
+                boardArrayCopy[CurrentLocation.X + j, CurrentLocation.Y + i] = pieceShape[i, j];
             }
 
-            return boardArray;
+            return boardArrayCopy;
         }
 
         public void ResetPiece(int pieceTypeI, int sideLengthI)

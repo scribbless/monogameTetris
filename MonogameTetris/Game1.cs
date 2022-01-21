@@ -51,12 +51,23 @@ namespace MonogameTetris
             _squareTexture.SetData(_squareData);
 
             //_boardSettings = new BoardSettings(20, 0, new Vector2(100, 100), _squareTexture);
+            
+            /*  0 = AggregateHeight
+                1 = GarbageAmount
+                2 = HolesNum
+                3 = ColumnHolesNum
+                4 = Bumpiness
+                5 = HorizontalTransitions
+                6 = VerticalTransitions
+                7 = Pits
+                8 = DeepestWell
+             */
 
             _player = new TetrisGame(true, new BoardSettings(20, 0, new IntVector2(100, 100), _squareTexture, _font),
-                new PlayerSettings(300, 30));
+                new PlayerSettings(300, 30), null);
 
             _ai = new TetrisGame(false, new BoardSettings(20, 0, new IntVector2(800, 100), _squareTexture, _font),
-                new PlayerSettings(300, 30));
+                new PlayerSettings(300, 30), new double[]{-0.2, 1, -0.4, -0.2, -0.1, -0.1, -0.1, 0.5, 0.1});
         }
 
         protected override void Update(GameTime gameTime)
@@ -72,10 +83,10 @@ namespace MonogameTetris
             if (!_paused)
             {
                 _player.Update(gameTime);
-                //_ai.Update(gameTime);
+                _ai.Update(gameTime);
 
                 _player.ReceiveGarbage(ref _ai.SendGarbage());
-                //_ai.ReceiveGarbage(ref _player.SendGarbage());
+                _ai.ReceiveGarbage(ref _player.SendGarbage());
             }
 
             if (_inputLib.IsNewPress(Keys.P))
@@ -94,7 +105,7 @@ namespace MonogameTetris
 
             //DRAW PLAYER BOARD
             _player.Draw(gameTime, _spriteBatch);
-            //_ai.Draw(gameTime, _spriteBatch);
+            _ai.Draw(gameTime, _spriteBatch);
 
             // Finds the center of the string in coordinates inside the text rectangle
             var textMiddlePoint = _font.MeasureString(_testText) / 2;
