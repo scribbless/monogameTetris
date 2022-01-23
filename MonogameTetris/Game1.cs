@@ -21,6 +21,8 @@ namespace MonogameTetris
         private Texture2D _squareTexture;
         private string _testText;
         private int _tileSize;
+        private IntVector2 _gamePosition;
+        private SingleGame _trainer1;
 
 
         public Game1()
@@ -40,7 +42,8 @@ namespace MonogameTetris
 
             //SETUP VARIABLES
             //tile size = 20 board padding = 0
-            _tileSize = 20;
+            _tileSize = 5;
+            _gamePosition = new IntVector2(100, 100);
 
             _squareData = new Color[_tileSize * _tileSize];
             _squareTexture = new Texture2D(GraphicsDevice, _tileSize, _tileSize);
@@ -60,12 +63,17 @@ namespace MonogameTetris
                 7 = Pits
                 8 = DeepestWell
              */
-
-            _player = new TetrisGame(false, new BoardSettings(20, 0, new IntVector2(100, 100), _squareTexture, _font),
+            
+            
+            /*
+            _player = new TetrisGame(false, new BoardSettings(_tileSize, 0, _gamePosition, _squareTexture, _font),
                 new PlayerSettings(300, 30), new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1});
 
-            _ai = new TetrisGame(false, new BoardSettings(20, 0, new IntVector2(800, 100), _squareTexture, _font),
+            _ai = new TetrisGame(false, new BoardSettings(_tileSize, 0, new IntVector2(_gamePosition.X + (_tileSize * 22), _gamePosition.Y), _squareTexture, _font),
                 new PlayerSettings(300, 30), new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1});
+                */
+
+            _trainer1 = new SingleGame(_tileSize, _gamePosition, _squareTexture, _font, new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1}, new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1});
         }
 
         protected override void Update(GameTime gameTime)
@@ -80,11 +88,15 @@ namespace MonogameTetris
 
             if (!_paused)
             {
+                /*
                 _player.Update(gameTime);
                 _ai.Update(gameTime);
 
                 _player.ReceiveGarbage(ref _ai.SendGarbage());
                 _ai.ReceiveGarbage(ref _player.SendGarbage());
+                */
+                
+                _trainer1.Update(gameTime);
             }
 
             if (_inputLib.IsNewPress(Keys.P)) _paused = !_paused;
@@ -99,8 +111,12 @@ namespace MonogameTetris
             _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied);
 
             //DRAW PLAYER BOARD
+            /*
             _player.Draw(gameTime, _spriteBatch);
             _ai.Draw(gameTime, _spriteBatch);
+            */
+            _trainer1.Draw(gameTime, _spriteBatch);
+            
 
             // Finds the center of the string in coordinates inside the text rectangle
             var textMiddlePoint = _font.MeasureString(_testText) / 2;

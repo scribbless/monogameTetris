@@ -66,7 +66,7 @@ namespace MonogameTetris.TetrisLib
             HeuristicWeights = heuristicWeights;
 
             _gravityIntervalTime = 500;
-            _aiMoveIntervalTimeBase = 130;
+            _aiMoveIntervalTimeBase = 1;
 
             _staticBoardArray = new int[_boardSize.X, _boardSize.Y];
             Array.Clear(_staticBoardArray, 0, _staticBoardArray.Length);
