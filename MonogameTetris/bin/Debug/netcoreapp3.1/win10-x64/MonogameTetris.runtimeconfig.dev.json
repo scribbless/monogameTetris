@@ -1,0 +1,8 @@
+﻿{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\cass7\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\cass7\\.nuget\\packages"
+    ]
+  }
+}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>/Users/cass/RiderProjects/monogameTetris/MonogameTetris/Content/Font/Akira.spritefont</SourceFile>
-  <SourceTime>2022-01-10T15:27:27.8479484+00:00</SourceTime>
-  <DestFile>/Users/cass/RiderProjects/monogameTetris/MonogameTetris/Content/bin/DesktopGL/Content/Font/Akira.xnb</DestFile>
-  <DestTime>2022-01-21T11:40:58.0711933+00:00</DestTime>
+  <SourceFile>C:/Users/cass7/RiderProjects/monogameTetris/MonogameTetris/Content/Font/Akira.spritefont</SourceFile>
+  <SourceTime>2022-01-16T19:39:46.6702145+00:00</SourceTime>
+  <DestFile>C:/Users/cass7/RiderProjects/monogameTetris/MonogameTetris/Content/bin/DesktopGL/Content/Font/Akira.xnb</DestFile>
+  <DestTime>2022-01-23T16:42:23.5500541+00:00</DestTime>
   <Importer>FontDescriptionImporter</Importer>
   <ImporterTime>2022-01-11T08:53:12+00:00</ImporterTime>
   <Processor>FontDescriptionProcessor</Processor>

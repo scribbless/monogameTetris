@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>/Users/cass/RiderProjects/monogameTetris/MonogameTetris/Content/img/test/lp.png</SourceFile>
-  <SourceTime>2021-10-08T05:15:37.4607801+01:00</SourceTime>
-  <DestFile>/Users/cass/RiderProjects/monogameTetris/MonogameTetris/Content/bin/DesktopGL/Content/img/test/lp.xnb</DestFile>
-  <DestTime>2022-01-21T11:40:57.7447669+00:00</DestTime>
+  <SourceFile>C:/Users/cass7/RiderProjects/monogameTetris/MonogameTetris/Content/img/test/lp.png</SourceFile>
+  <SourceTime>2022-01-16T19:39:46.6727164+00:00</SourceTime>
+  <DestFile>C:/Users/cass7/RiderProjects/monogameTetris/MonogameTetris/Content/bin/DesktopGL/Content/img/test/lp.xnb</DestFile>
+  <DestTime>2022-01-23T16:41:27.6929233+00:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-01-11T08:53:12+00:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

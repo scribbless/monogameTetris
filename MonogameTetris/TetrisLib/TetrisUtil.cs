@@ -318,7 +318,7 @@ namespace MonogameTetris.TetrisLib
             for (var i = 0; i < 10; i++)
             {
                 //Console.Write(boardArray[i, 0].ToString());
-                if (boardArray[i, 0] == 0) continue;
+                if (boardArray[i, 1] == 0) continue;
                 //Console.Write("Causes loss!");
                 causesLoss = true;
                 return boardArray;

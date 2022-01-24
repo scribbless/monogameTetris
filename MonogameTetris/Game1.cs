@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonogameTetris.TetrisLib;
 using static Microsoft.Xna.Framework.Color;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MonogameTetris
 {
@@ -22,8 +25,7 @@ namespace MonogameTetris
         private string _testText;
         private int _tileSize;
         private IntVector2 _gamePosition;
-        private SingleGame _trainer1;
-
+        private AiAndThreadManager _aiAndThreadManager;
 
         public Game1()
         {
@@ -43,13 +45,16 @@ namespace MonogameTetris
             //SETUP VARIABLES
             //tile size = 20 board padding = 0
             _tileSize = 5;
-            _gamePosition = new IntVector2(100, 100);
+            _gamePosition = new IntVector2(50, 50);
+            
 
             _squareData = new Color[_tileSize * _tileSize];
             _squareTexture = new Texture2D(GraphicsDevice, _tileSize, _tileSize);
             for (var i = 0; i < _squareData.Length; ++i)
                 _squareData[i] = White;
             _squareTexture.SetData(_squareData);
+            
+            _aiAndThreadManager = new AiAndThreadManager(3, 9, _tileSize, _gamePosition, _squareTexture, _font);
 
             //_boardSettings = new BoardSettings(20, 0, new Vector2(100, 100), _squareTexture);
 
@@ -72,8 +77,6 @@ namespace MonogameTetris
             _ai = new TetrisGame(false, new BoardSettings(_tileSize, 0, new IntVector2(_gamePosition.X + (_tileSize * 22), _gamePosition.Y), _squareTexture, _font),
                 new PlayerSettings(300, 30), new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1});
                 */
-
-            _trainer1 = new SingleGame(_tileSize, _gamePosition, _squareTexture, _font, new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1}, new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1});
         }
 
         protected override void Update(GameTime gameTime)
@@ -96,7 +99,7 @@ namespace MonogameTetris
                 _ai.ReceiveGarbage(ref _player.SendGarbage());
                 */
                 
-                _trainer1.Update(gameTime);
+                _aiAndThreadManager.Update(gameTime);
             }
 
             if (_inputLib.IsNewPress(Keys.P)) _paused = !_paused;
@@ -115,7 +118,11 @@ namespace MonogameTetris
             _player.Draw(gameTime, _spriteBatch);
             _ai.Draw(gameTime, _spriteBatch);
             */
-            _trainer1.Draw(gameTime, _spriteBatch);
+            //_trainer1.Draw(gameTime, _spriteBatch);
+
+            //Parallel.ForEach(_threads, thread => thread.Draw(gameTime, _spriteBatch));
+            
+            _aiAndThreadManager.Draw(gameTime, _spriteBatch);
             
 
             // Finds the center of the string in coordinates inside the text rectangle
@@ -130,6 +137,7 @@ namespace MonogameTetris
             _frameCounter.Update(deltaTime);
             var fps = string.Format("FPS: {0}", _frameCounter.AverageFramesPerSecond);
             _spriteBatch.DrawString(_font, fps, new Vector2(1, 1), Black);
+            _spriteBatch.DrawString(_font, $"Generation: {_aiAndThreadManager.GenerationNum}", new Vector2(300, 1), Black);
 
             _spriteBatch.End();
 
