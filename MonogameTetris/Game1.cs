@@ -1,24 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonogameTetris.TetrisLib;
 using static Microsoft.Xna.Framework.Color;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MonogameTetris
 {
     public class Game1 : Game
     {
-        private TetrisGame _ai;
-        private bool _causesLoss = false;
         private SpriteFont _font;
         private readonly FrameCounter _frameCounter = new FrameCounter();
         private readonly InputLib _inputLib = new InputLib();
         private bool _paused;
-        private TetrisGame _player;
+        //private TetrisGame _player;
+        //private TetrisGame _ai;
         private SpriteBatch _spriteBatch;
         private Color[] _squareData;
         private Texture2D _squareTexture;
@@ -135,7 +131,7 @@ namespace MonogameTetris
 
             var deltaTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
             _frameCounter.Update(deltaTime);
-            var fps = string.Format("FPS: {0}", _frameCounter.AverageFramesPerSecond);
+            var fps = $"FPS: {_frameCounter.AverageFramesPerSecond}";
             _spriteBatch.DrawString(_font, fps, new Vector2(1, 1), Black);
             _spriteBatch.DrawString(_font, $"Generation: {_aiAndThreadManager.GenerationNum}", new Vector2(300, 1), Black);
 

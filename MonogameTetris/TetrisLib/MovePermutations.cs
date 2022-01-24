@@ -20,6 +20,7 @@ namespace MonogameTetris.TetrisLib
         /// </summary>
         /// <param name="decimalNumber">The number to convert.</param>
         /// <param name="radix">The radix of the destination numeral system (in the range [2, 36]).</param>
+        /// <param name="digitCount">The number of leading zeros to use</param>
         /// <returns></returns>
         private static string DecimalToArbitrarySystem(long decimalNumber, int radix, int digitCount)
         {

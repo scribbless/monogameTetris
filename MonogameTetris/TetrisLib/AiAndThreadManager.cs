@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,17 +13,17 @@ namespace MonogameTetris.TetrisLib
 {
     public class AiAndThreadManager
     {
-        private List<SingleThread> _threads;
-        private Dictionary<int, double[]> _weightsDict;
+        private readonly List<SingleThread> _threads;
+        private readonly Dictionary<int, double[]> _weightsDict;
         private bool _genComplete;
         private List<SingleGame> _winnerWeightsDict;
         private double _lastTimeUpdate;
-        private int _threadsNum;
-        private int _gamesPerThread;
-        private IntVector2 _gamePosition;
-        private SpriteFont _font;
-        private Texture2D _squareTexture;
-        private int _tileSize;
+        private readonly int _threadsNum;
+        private readonly int _gamesPerThread;
+        private readonly IntVector2 _gamePosition;
+        private readonly SpriteFont _font;
+        private readonly Texture2D _squareTexture;
+        private readonly int _tileSize;
         public int GenerationNum;
             
         public AiAndThreadManager(int gamesPerThread, int threadsNum, int tileSize, IntVector2 gamePosition, Texture2D squareTexture,
@@ -56,19 +58,26 @@ namespace MonogameTetris.TetrisLib
             }
         }
 
-        public void CreateNewGeneration()
+        private void CreateNewGeneration()
         {
             _winnerWeightsDict = new List<SingleGame>();
             _weightsDict.Clear();
             var r = new Random();
-            
+
             foreach (var threadGame in from thread in _threads from threadGame in thread.ThreadGameList select threadGame)
             {
                 _winnerWeightsDict.Add(threadGame);
             }
             
-            _winnerWeightsDict.Sort((y, x) => x.WinnerGarbageSent.CompareTo(y.WinnerGarbageSent));
-
+            //winnerWeightsDict = _winnerWeightsDict.Sort((y, x) => x.WinnerGarbageSent.CompareTo(y.WinnerGarbageSent));
+            _winnerWeightsDict = _winnerWeightsDict.OrderByDescending(game => game.WinnerGarbageSent)
+                .ThenByDescending(game => game.WinnerLinesDropped).Select(game => game).ToList();
+            
+            var csv = new StringBuilder();
+            var newLine =_winnerWeightsDict[0].WinnerGarbageSent.ToString();
+            csv.AppendLine(newLine);
+            File.AppendAllText("C:\\Users\\cass7\\RiderProjects\\monogameTetris\\MonogameTetris\\data.csv", csv.ToString());
+            
             var shuffleList = new List<SingleGame>();
             for (var i = 0; i < 6; i++)
             {
@@ -84,16 +93,57 @@ namespace MonogameTetris.TetrisLib
                     var randomN = r.NextDouble();
                     var randomN2 = r.NextDouble();
                     var randomI = r.Next(0, 11);
+                    var randomI2 = r.Next(0, 11);
 
                     if (randomN2 >= 0.8)
                     {
-                        if (randomN >= 0.5) weights[j] = _winnerWeightsDict[randomI].Game1Weights[j] += ((r.NextDouble() * 2) - 1) * 0.2;
-                        else weights[j] = _winnerWeightsDict[randomI].Game2Weights[j] += ((r.NextDouble() * 2) - 1) * 0.2;
+                        if (randomN >= 0.5)
+                        {
+                            if (_winnerWeightsDict[randomI].Winner == 1)
+                            {
+                                weights[j] = _winnerWeightsDict[randomI].Game1Weights[j] += ((r.NextDouble() * 2) - 1) * 0.2;
+                            }
+                            else
+                            {
+                                weights[j] = _winnerWeightsDict[randomI].Game2Weights[j] += ((r.NextDouble() * 2) - 1) * 0.2;
+                            }
+                        }
+                        else
+                        {
+                            if (_winnerWeightsDict[randomI2].Winner == 1)
+                            {
+                                weights[j] = _winnerWeightsDict[randomI2].Game1Weights[j] += ((r.NextDouble() * 2) - 1) * 0.2;
+                            }
+                            else
+                            {
+                                weights[j] = _winnerWeightsDict[randomI2].Game2Weights[j] += ((r.NextDouble() * 2) - 1) * 0.2;
+                            }
+                        }
                     }
                     else
                     {
-                        if (randomN >= 0.5) weights[j] = _winnerWeightsDict[randomI].Game1Weights[j];
-                        else weights[j] = _winnerWeightsDict[randomI].Game2Weights[j];
+                        if (randomN >= 0.5)
+                        {
+                            if (_winnerWeightsDict[randomI].Winner == 1)
+                            {
+                                weights[j] = _winnerWeightsDict[randomI].Game1Weights[j];
+                            }
+                            else
+                            {
+                                weights[j] = _winnerWeightsDict[randomI].Game2Weights[j];
+                            }
+                        }
+                        else
+                        {
+                            if (_winnerWeightsDict[randomI2].Winner == 1)
+                            {
+                                weights[j] = _winnerWeightsDict[randomI2].Game1Weights[j];
+                            }
+                            else
+                            {
+                                weights[j] = _winnerWeightsDict[randomI2].Game2Weights[j];
+                            }
+                        }
                     }
                 }
                 _weightsDict.Add(i, weights);
@@ -144,14 +194,14 @@ namespace MonogameTetris.TetrisLib
             }
         }
 
-        public void Draw(GameTime gameTime, SpriteBatch _spriteBatch)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             // foreach (var thread in _threads)
             // {
             //     thread.Draw(gameTime, _spriteBatch);
             // }
 
-            _threads[0].ThreadGameList[0].Draw(gameTime, _spriteBatch);
+            _threads[0].ThreadGameList[0].Draw(gameTime, spriteBatch);
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace MonogameTetris.TetrisLib
@@ -83,7 +82,7 @@ namespace MonogameTetris.TetrisLib
         }
 */
 
-        public static double CalculateCost(int[,] boardArray, int[,] staticBoardArray, double[] heuristicWeights,
+        private static double CalculateCost(int[,] boardArray, int[,] staticBoardArray, double[] heuristicWeights,
             bool backToBack, bool lastMoveIsSpin, ActivePiece activePiece, bool wasLastWallkickUsed, int comboCount)
         {
             // 1. calculate any line clears
@@ -503,13 +502,13 @@ namespace MonogameTetris.TetrisLib
 
             double highestCost = -10000000;
             var bestMove = new PossibleMove();
-            foreach (var position in possiblePositions.Where(position => position.cost > highestCost))
+            foreach (var position in possiblePositions.Where(position => position.Cost > highestCost))
             {
                 //if (activePieceTemp.PieceType == 2)
                     //Debug.WriteLine(
                     //    $"move cost: {highestCost}\nmove x: {bestMove.endPosition.Position.X}, y: {bestMove.endPosition.Position.Y}, rotation: {bestMove.endPosition.Rotation}");
 
-                highestCost = position.cost;
+                highestCost = position.Cost;
                 bestMove = position;
             }
 

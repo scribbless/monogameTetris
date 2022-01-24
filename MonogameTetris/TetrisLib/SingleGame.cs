@@ -24,6 +24,7 @@ namespace MonogameTetris.TetrisLib
         public int IndexNum;
         public int Winner;
         public int WinnerGarbageSent;
+        public int WinnerLinesDropped;
 
         public SingleGame(int tileSize, IntVector2 gamePosition, Texture2D squareTexture, SpriteFont font, double[] game1Weights, double[] game2Weights, int indexNum)
         {
@@ -34,6 +35,7 @@ namespace MonogameTetris.TetrisLib
             IndexNum = indexNum;
             _run = true;
             WinnerGarbageSent = 0;
+            WinnerLinesDropped = 0;
 
             _tileSize = tileSize;
             _gamePosition = gamePosition;
@@ -87,10 +89,17 @@ namespace MonogameTetris.TetrisLib
                             2 => TetrisGame2.TotalGarbageSent,
                             _ => WinnerGarbageSent
                         };
+                        
+                        WinnerLinesDropped = Winner switch
+                        {
+                            1 => TetrisGame1.TotalPiecesDropped,
+                            2 => TetrisGame2.TotalPiecesDropped,
+                            _ => WinnerLinesDropped
+                        };
                         _run = false;
                     }
                 }
-                else if (TetrisGame1.TotalPiecesDropped > 1000 || TetrisGame2.TotalPiecesDropped > 1000)
+                else if (TetrisGame1.TotalPiecesDropped > 250 || TetrisGame2.TotalPiecesDropped > 250)
                 {
                     if (TetrisGame1.TotalGarbageSent > TetrisGame2.TotalGarbageSent)
                     {
