@@ -75,8 +75,8 @@ namespace MonogameTetris.TetrisLib
             _playerSettings = playerSettings;
             _heuristicWeights = heuristicWeights;
 
-            _gravityIntervalTime = 40;
-            _aiMoveIntervalTimeBase = 1;
+            _gravityIntervalTime = 500;
+            _aiMoveIntervalTimeBase = 190;
 
             _staticBoardArray = new int[_boardSize.X, _boardSize.Y];
             Array.Clear(_staticBoardArray, 0, _staticBoardArray.Length);
@@ -417,7 +417,7 @@ namespace MonogameTetris.TetrisLib
                         _lastMoveUpdate = gameTime.TotalGameTime.TotalMilliseconds;
 
                         // make movement more realistic
-                        _aiMoveIntervalTime = _aiMoveIntervalTimeBase + (_random.NextDouble() * 2 - 1) * 2;
+                        _aiMoveIntervalTime = _aiMoveIntervalTimeBase + (_random.NextDouble() * 2 - 1) * 60;
 
                         if (_movingIntoPlace)
                         {

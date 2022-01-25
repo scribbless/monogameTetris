@@ -13,15 +13,17 @@ namespace MonogameTetris
         private readonly FrameCounter _frameCounter = new FrameCounter();
         private readonly InputLib _inputLib = new InputLib();
         private bool _paused;
-        //private TetrisGame _player;
-        //private TetrisGame _ai;
+        private TetrisGame _player;
+        private TetrisGame _ai;
         private SpriteBatch _spriteBatch;
         private Color[] _squareData;
         private Texture2D _squareTexture;
         private string _testText;
         private int _tileSize;
         private IntVector2 _gamePosition;
-        private AiAndThreadManager _aiAndThreadManager;
+
+        private bool _menu;
+        //private AiAndThreadManager _aiAndThreadManager;
 
         public Game1()
         {
@@ -40,9 +42,9 @@ namespace MonogameTetris
 
             //SETUP VARIABLES
             //tile size = 20 board padding = 0
-            _tileSize = 5;
-            _gamePosition = new IntVector2(50, 50);
-            
+            _tileSize = 20;
+            _gamePosition = new IntVector2(200, 100);
+            _menu = true;
 
             _squareData = new Color[_tileSize * _tileSize];
             _squareTexture = new Texture2D(GraphicsDevice, _tileSize, _tileSize);
@@ -50,7 +52,7 @@ namespace MonogameTetris
                 _squareData[i] = White;
             _squareTexture.SetData(_squareData);
             
-            _aiAndThreadManager = new AiAndThreadManager(3, 9, _tileSize, _gamePosition, _squareTexture, _font);
+            //_aiAndThreadManager = new AiAndThreadManager(3, 9, _tileSize, _gamePosition, _squareTexture, _font);
 
             //_boardSettings = new BoardSettings(20, 0, new Vector2(100, 100), _squareTexture);
 
@@ -65,14 +67,15 @@ namespace MonogameTetris
                 8 = DeepestWell
              */
             
+            //MEDIUM DIFF {0.0869992666351604, 0.95414121041733007, -4.051184477680916, -1.881675142367219, -0.39356570290101967, -1.4050722571113483, -0.3283603063450941, -0.2504628801487685, -0.9286245450045114}
             
-            /*
-            _player = new TetrisGame(false, new BoardSettings(_tileSize, 0, _gamePosition, _squareTexture, _font),
-                new PlayerSettings(300, 30), new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1});
+            
+            _player = new TetrisGame(true, new BoardSettings(_tileSize, 0, _gamePosition, _squareTexture, _font),
+                new PlayerSettings(300, 30), new [] {-0.2869992666351604, -0.25414121041733007, -4.051184477680916, -1.881675142367219, -0.39356570290101967, -1.4050722571113483, -0.3283603063450941, -2.9504628801487685, -1.9286245450045114}, false);
 
             _ai = new TetrisGame(false, new BoardSettings(_tileSize, 0, new IntVector2(_gamePosition.X + (_tileSize * 22), _gamePosition.Y), _squareTexture, _font),
-                new PlayerSettings(300, 30), new[] {-4, 100, -1, -0.2, -0.1, -0.1, -0.1, 0.5, -0.1});
-                */
+                new PlayerSettings(300, 30), new[] {0.0869992666351604, 0.95414121041733007, -4.051184477680916, -1.881675142367219, -0.39356570290101967, -1.4050722571113483, -0.3283603063450941, -0.2504628801487685, -0.9286245450045114}, false);
+            
         }
 
         protected override void Update(GameTime gameTime)
@@ -85,17 +88,24 @@ namespace MonogameTetris
 
             _inputLib.Update();
 
-            if (!_paused)
+            if (!_paused && !_menu)
             {
-                /*
+                
                 _player.Update(gameTime);
                 _ai.Update(gameTime);
 
                 _player.ReceiveGarbage(ref _ai.SendGarbage());
                 _ai.ReceiveGarbage(ref _player.SendGarbage());
-                */
                 
-                _aiAndThreadManager.Update(gameTime);
+                
+                //_aiAndThreadManager.Update(gameTime);
+            }
+            else
+            {
+                if (_inputLib.IsNewPress(Keys.Enter))
+                {
+                    _menu = false;
+                }
             }
 
             if (_inputLib.IsNewPress(Keys.P)) _paused = !_paused;
@@ -110,15 +120,18 @@ namespace MonogameTetris
             _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied);
 
             //DRAW PLAYER BOARD
-            /*
-            _player.Draw(gameTime, _spriteBatch);
-            _ai.Draw(gameTime, _spriteBatch);
-            */
-            //_trainer1.Draw(gameTime, _spriteBatch);
 
-            //Parallel.ForEach(_threads, thread => thread.Draw(gameTime, _spriteBatch));
-            
-            _aiAndThreadManager.Draw(gameTime, _spriteBatch);
+            if (_menu)
+            {
+                _spriteBatch.DrawString(_font, $"AWESOME TETRIS\n\nleft arrow: move left\nright arrow: move right\ndown arrow: soft drop\nspace key: hard drop\nc key: hold piece\nup arrow: rotate right\nz key: rotate left\np key: pause\nyou are the left board\n\npress enter to start", new Vector2(500, 100), Black);
+            }
+            else
+            {
+                _player.Draw(gameTime, _spriteBatch);
+                _ai.Draw(gameTime, _spriteBatch);
+            }
+
+            //_aiAndThreadManager.Draw(gameTime, _spriteBatch);
             
 
             // Finds the center of the string in coordinates inside the text rectangle
@@ -133,7 +146,7 @@ namespace MonogameTetris
             _frameCounter.Update(deltaTime);
             var fps = $"FPS: {_frameCounter.AverageFramesPerSecond}";
             _spriteBatch.DrawString(_font, fps, new Vector2(1, 1), Black);
-            _spriteBatch.DrawString(_font, $"Generation: {_aiAndThreadManager.GenerationNum}", new Vector2(300, 1), Black);
+            //_spriteBatch.DrawString(_font, $"Generation: {_aiAndThreadManager.GenerationNum}", new Vector2(300, 1), Black);
 
             _spriteBatch.End();
 

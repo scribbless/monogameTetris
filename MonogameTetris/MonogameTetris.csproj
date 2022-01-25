@@ -8,6 +8,7 @@
     <PropertyGroup>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>Icon.ico</ApplicationIcon>
+        <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64;osx-x64</RuntimeIdentifiers>
         <!--RuntimeIdentifier>win10-x64</RuntimeIdentifier-->
     </PropertyGroup>
     <ItemGroup>
