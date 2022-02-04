@@ -43,10 +43,10 @@ namespace MonogameTetris.TetrisLib
             _font = font;
 
             TetrisGame1 = new TetrisGame(false, new BoardSettings(tileSize, 0, new IntVector2(gamePosition.X, gamePosition.Y), squareTexture, font),
-                new PlayerSettings(300, 2), Game1Weights, false);
+                new PlayerSettings(300, 2), Game1Weights, false, 1);
             
             TetrisGame2 = new TetrisGame(false, new BoardSettings(tileSize, 0, new IntVector2(gamePosition.X + (tileSize * 22), gamePosition.Y), squareTexture, font),
-                new PlayerSettings(300, 2), Game2Weights, false);
+                new PlayerSettings(300, 2), Game2Weights, false, 1);
         }
 
         public void Update(GameTime gameTime)
@@ -62,20 +62,20 @@ namespace MonogameTetris.TetrisLib
                             score[gameNum] = 1;
                             
                             TetrisGame1 = new TetrisGame(false, new BoardSettings(_tileSize, 0, new IntVector2(_gamePosition.X, _gamePosition.Y), _squareTexture, _font),
-                                new PlayerSettings(300, 2), Game1Weights, false);
+                                new PlayerSettings(300, 2), Game1Weights, false, 1);
             
                             TetrisGame2 = new TetrisGame(false, new BoardSettings(_tileSize, 0, new IntVector2(_gamePosition.X + (_tileSize * 22), _gamePosition.Y), _squareTexture, _font),
-                                new PlayerSettings(300, 2), Game2Weights, false);
+                                new PlayerSettings(300, 2), Game2Weights, false, 1);
                         }
                         else
                         {
                             score[gameNum] = 2;
                             
                             TetrisGame1 = new TetrisGame(false, new BoardSettings(_tileSize, 0, new IntVector2(_gamePosition.X, _gamePosition.Y), _squareTexture, _font),
-                                new PlayerSettings(300, 2), Game1Weights, false);
+                                new PlayerSettings(300, 2), Game1Weights, false, 1);
             
                             TetrisGame2 = new TetrisGame(false, new BoardSettings(_tileSize, 0, new IntVector2(_gamePosition.X + (_tileSize * 22), _gamePosition.Y), _squareTexture, _font),
-                                new PlayerSettings(300, 2), Game2Weights, false);
+                                new PlayerSettings(300, 2), Game2Weights, false, 1);
                         }
 
                         gameNum++;

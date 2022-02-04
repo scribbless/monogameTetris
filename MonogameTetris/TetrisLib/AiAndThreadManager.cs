@@ -64,20 +64,24 @@ namespace MonogameTetris.TetrisLib
             _weightsDict.Clear();
             var r = new Random();
 
+            //add weights to new list
             foreach (var threadGame in from thread in _threads from threadGame in thread.ThreadGameList select threadGame)
             {
                 _winnerWeightsDict.Add(threadGame);
             }
             
-            //winnerWeightsDict = _winnerWeightsDict.Sort((y, x) => x.WinnerGarbageSent.CompareTo(y.WinnerGarbageSent));
+            // sort weights first by amount of garbage it sent, then if that is 0 sort by the amount of lines that dropped
+            // so that the ai will actually progress at the start of training
             _winnerWeightsDict = _winnerWeightsDict.OrderByDescending(game => game.WinnerGarbageSent)
                 .ThenByDescending(game => game.WinnerLinesDropped).Select(game => game).ToList();
             
+            //save data to file for chart
             var csv = new StringBuilder();
             var newLine =_winnerWeightsDict[0].WinnerGarbageSent.ToString();
             csv.AppendLine(newLine);
-            File.AppendAllText("C:\\Users\\cass7\\RiderProjects\\monogameTetris\\MonogameTetris\\data.csv", csv.ToString());
+            File.AppendAllText("./data.csv", csv.ToString());
             
+            // controls amount of the best ais to use, basically the selection
             var shuffleList = new List<SingleGame>();
             for (var i = 0; i < 6; i++)
             {
@@ -85,6 +89,7 @@ namespace MonogameTetris.TetrisLib
             }
             shuffleList.Shuffle();
 
+            // repopulate and mutate and breed children
             for (var i = 0; i < _threadsNum * (_gamesPerThread * 2); i++)
             {
                 var weights = new double[9];
@@ -95,6 +100,8 @@ namespace MonogameTetris.TetrisLib
                     var randomI = r.Next(0, 11);
                     var randomI2 = r.Next(0, 11);
 
+                    // very scuffed solution: 0.8 is the mutation chance so that means there's a 20% chance of mutation here
+                    // for the mutation its basically just a random value from -0.2 to 0.2
                     if (randomN2 >= 0.8)
                     {
                         if (randomN >= 0.5)
@@ -151,12 +158,14 @@ namespace MonogameTetris.TetrisLib
             
             _threads.Clear();
             
+            // add these children to thread list
             for (var i = 0; i < _threadsNum; i++)
             {
                 _threads.Add(new SingleThread(_gamesPerThread, _tileSize, new IntVector2(_gamePosition.X, _gamePosition.Y + (i * (25 * _tileSize))), _squareTexture, _font,
                     _weightsDict, i * (_gamesPerThread * 2)));
             }
 
+            // log best weights
             if (_winnerWeightsDict[0].Winner == 1)
             {
                 Debug.WriteLine($"fittest weights generation {GenerationNum}: ");
@@ -178,11 +187,14 @@ namespace MonogameTetris.TetrisLib
             {
                 thread.Update(gameTime);
             });
+            
+            // very cursed solution, we only check for a loss every 200 milliseconds since the LINQ search function is incredibly demanding
             if (gameTime.TotalGameTime.TotalMilliseconds - _lastTimeUpdate > 200)
             {
                 //update time since last gravity
                 _lastTimeUpdate = gameTime.TotalGameTime.TotalMilliseconds;
                 
+                //basically just checking if all boards have finished their games
                 foreach (var threadGame in from thread in _threads from threadGame in thread.ThreadGameList select threadGame)
                 {
                     if (threadGame.Winner == 0) _genComplete = false;

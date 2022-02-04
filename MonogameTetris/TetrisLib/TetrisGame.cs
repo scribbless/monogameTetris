@@ -23,9 +23,9 @@ namespace MonogameTetris.TetrisLib
         private readonly PlayerSettings _playerSettings;
         private readonly TetrisUtil _tetrisUtil = new TetrisUtil();
 
-        private readonly double[] _heuristicWeights;
+        public double[] HeuristicWeights;
         private double _aiMoveIntervalTime;
-        private readonly double _aiMoveIntervalTimeBase;
+        public double AiMoveIntervalTimeBase;
         private bool _backToBack;
         private int[,] _boardArray;
         private bool _causesLoss;
@@ -64,7 +64,7 @@ namespace MonogameTetris.TetrisLib
 
 
         public TetrisGame(bool isHuman, BoardSettings boardSettings, PlayerSettings playerSettings,
-            double[] heuristicWeights, bool debug)
+            double[] heuristicWeights, bool debug, int aiMoveInterval)
         {
             TotalGarbageSent = 0;
             _isHuman = isHuman;
@@ -73,10 +73,10 @@ namespace MonogameTetris.TetrisLib
             _hasGrayedOutBoard = false;
             _boardSettings = boardSettings;
             _playerSettings = playerSettings;
-            _heuristicWeights = heuristicWeights;
+            HeuristicWeights = heuristicWeights;
 
             _gravityIntervalTime = 500;
-            _aiMoveIntervalTimeBase = 190;
+            AiMoveIntervalTimeBase = aiMoveInterval;
 
             _staticBoardArray = new int[_boardSize.X, _boardSize.Y];
             Array.Clear(_staticBoardArray, 0, _staticBoardArray.Length);
@@ -134,13 +134,13 @@ namespace MonogameTetris.TetrisLib
                 
                 _move = AiFunctions.FindBestMoveAndPath(_activePiece.PieceType, _staticBoardArray, _backToBack,
                     _lastMoveIsSpin,
-                    _wasLastWallkickUsed, _comboCount, _heuristicWeights);
+                    _wasLastWallkickUsed, _comboCount, HeuristicWeights);
 
                 if (_heldPiece == 0)
                 {
                     var move1 = AiFunctions.FindBestMoveAndPath(_masterPieceQueue[0], _staticBoardArray, _backToBack,
                         _lastMoveIsSpin,
-                        _wasLastWallkickUsed, _comboCount, _heuristicWeights);
+                        _wasLastWallkickUsed, _comboCount, HeuristicWeights);
 
                     if (!(move1.Cost > _move.Cost)) return;
                     _move = move1;
@@ -176,7 +176,7 @@ namespace MonogameTetris.TetrisLib
                 {
                     var move1 = AiFunctions.FindBestMoveAndPath(_heldPiece, _staticBoardArray, _backToBack,
                         _lastMoveIsSpin,
-                        _wasLastWallkickUsed, _comboCount, _heuristicWeights);
+                        _wasLastWallkickUsed, _comboCount, HeuristicWeights);
 
                     if (!(move1.Cost > _move.Cost)) return;
                     _move = move1;
@@ -417,7 +417,7 @@ namespace MonogameTetris.TetrisLib
                         _lastMoveUpdate = gameTime.TotalGameTime.TotalMilliseconds;
 
                         // make movement more realistic
-                        _aiMoveIntervalTime = _aiMoveIntervalTimeBase + (_random.NextDouble() * 2 - 1) * 60;
+                        _aiMoveIntervalTime = AiMoveIntervalTimeBase + (_random.NextDouble() * 2 - 1) * 40;
 
                         if (_movingIntoPlace)
                         {
@@ -477,13 +477,13 @@ namespace MonogameTetris.TetrisLib
 
                                 _move = AiFunctions.FindBestMoveAndPath(_activePiece.PieceType, _staticBoardArray,
                                     _backToBack,
-                                    _lastMoveIsSpin, false, _comboCount, _heuristicWeights);
+                                    _lastMoveIsSpin, false, _comboCount, HeuristicWeights);
 
                                 if (_heldPiece == 0)
                                 {
                                     var move1 = AiFunctions.FindBestMoveAndPath(_masterPieceQueue[0], _staticBoardArray,
                                         _backToBack, _lastMoveIsSpin,
-                                        _wasLastWallkickUsed, _comboCount, _heuristicWeights);
+                                        _wasLastWallkickUsed, _comboCount, HeuristicWeights);
 
                                     if (!(move1.Cost > _move.Cost)) return;
                                     _move = move1;
@@ -520,7 +520,7 @@ namespace MonogameTetris.TetrisLib
                                 {
                                     var move1 = AiFunctions.FindBestMoveAndPath(_heldPiece, _staticBoardArray,
                                         _backToBack, _lastMoveIsSpin,
-                                        _wasLastWallkickUsed, _comboCount, _heuristicWeights);
+                                        _wasLastWallkickUsed, _comboCount, HeuristicWeights);
 
                                     if (!(move1.Cost > _move.Cost)) return;
                                     _move = move1;
@@ -756,13 +756,13 @@ namespace MonogameTetris.TetrisLib
                             {
                                 var move1 = AiFunctions.FindBestMoveAndPath(_masterPieceQueue[0], _staticBoardArray,
                                     _backToBack, _lastMoveIsSpin,
-                                    _wasLastWallkickUsed, _comboCount, _heuristicWeights);
+                                    _wasLastWallkickUsed, _comboCount, HeuristicWeights);
 
                                 if (!(move1.Cost > _move.Cost))
                                 {
                                     _move = AiFunctions.FindBestMoveAndPath(_activePiece.PieceType, _staticBoardArray,
                                         _backToBack,
-                                        _lastMoveIsSpin, false, _comboCount, _heuristicWeights);
+                                        _lastMoveIsSpin, false, _comboCount, HeuristicWeights);
                                 }
                                 else
                                 {
@@ -801,13 +801,13 @@ namespace MonogameTetris.TetrisLib
                             {
                                 var move1 = AiFunctions.FindBestMoveAndPath(_heldPiece, _staticBoardArray,
                                     _backToBack, _lastMoveIsSpin,
-                                    _wasLastWallkickUsed, _comboCount, _heuristicWeights);
+                                    _wasLastWallkickUsed, _comboCount, HeuristicWeights);
 
                                 if (!(move1.Cost > _move.Cost))
                                 {
                                     _move = AiFunctions.FindBestMoveAndPath(_activePiece.PieceType, _staticBoardArray,
                                         _backToBack,
-                                        _lastMoveIsSpin, false, _comboCount, _heuristicWeights);
+                                        _lastMoveIsSpin, false, _comboCount, HeuristicWeights);
                                 }
                                 else
                                 {
@@ -960,7 +960,7 @@ namespace MonogameTetris.TetrisLib
 
                                 _move = AiFunctions.FindBestMoveAndPath(_activePiece.PieceType, _staticBoardArray,
                                     _backToBack,
-                                    _lastMoveIsSpin, false, _comboCount, _heuristicWeights);
+                                    _lastMoveIsSpin, false, _comboCount, HeuristicWeights);
                             }
 
                             /*

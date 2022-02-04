@@ -10,6 +10,7 @@ namespace MonogameTetris.TetrisLib
         private static readonly MovePermutations Permutations = new MovePermutations(MoveCheckAmount);
 
         //simple search for positions
+        //UNUSED
 /*
         public static List<PiecePosition> FindPossiblePositionsSimple(int activePieceType, int heldPieceType, int[,] boardArray)
         {
@@ -81,7 +82,8 @@ namespace MonogameTetris.TetrisLib
             return possiblePositions;
         }
 */
-
+        
+        //cost calculations
         private static double CalculateCost(int[,] boardArray, int[,] staticBoardArray, double[] heuristicWeights,
             bool backToBack, bool lastMoveIsSpin, ActivePiece activePiece, bool wasLastWallkickUsed, int comboCount)
         {
@@ -229,6 +231,7 @@ namespace MonogameTetris.TetrisLib
         }
 
         //check through move permutations to see if a position is valid
+        //very over-engineered and the simple function would be much simpler to use
         private static string[] FindValidMove(int[,] boardArray,
             PiecePosition start, ActivePiece activePieceTemp, List<int[,]> tetData)
         {
@@ -333,6 +336,7 @@ namespace MonogameTetris.TetrisLib
             return new[] {"999"};
         }
 
+        //return data for pathfinding towards drop position
         public static PossibleMove FindBestMoveAndPath(int activePieceType,
             int[,] boardArray, bool backToBack, bool lastMoveIsSpin, bool wasLastWallkickUsed, int comboCount,
             double[] heuristicWeights)

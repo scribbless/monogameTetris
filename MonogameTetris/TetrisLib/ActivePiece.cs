@@ -20,6 +20,7 @@ namespace MonogameTetris.TetrisLib
             SideLength = sideLength;
         }
 
+        //very important function; checks whether it is valid for a piece to be in said location on the board
         public bool IsValidMove(int[,] boardArray, int newRotState, IntVector2 wallKick, bool useInputtedTet,
             int[,] tet)
         {
@@ -53,6 +54,7 @@ namespace MonogameTetris.TetrisLib
             return true;
         }
 
+        //right rotation validation
         private IntVector2 CheckRotR(int rotState, int[,] boardArray)
         {
             //Calc next rot state
@@ -107,6 +109,7 @@ namespace MonogameTetris.TetrisLib
             }
         }
 
+        //left rotation validation
         private IntVector2 CheckRotL(int rotState, int[,] boardArray)
         {
             //Calc next rot state
@@ -217,11 +220,13 @@ namespace MonogameTetris.TetrisLib
             return true;
         }
 
+        //if any block below piece is solid return true
         public bool IsTouchingBlock(int[,] boardArray)
         {
             return !IsValidMove(boardArray, RotState, new IntVector2(0, 1), false, null);
         }
 
+        //move piece down until it hits something
         public void HardDrop(int[,] boardArray)
         {
             while (true)
@@ -231,6 +236,7 @@ namespace MonogameTetris.TetrisLib
             }
         }
 
+        //return board array with piece rendered into it
         public int[,] ReturnLockedInBoard(int[,] boardArray)
         {
             var boardArrayCopy = (int[,]) boardArray.Clone();
@@ -245,6 +251,7 @@ namespace MonogameTetris.TetrisLib
             return boardArrayCopy;
         }
 
+        //reset the piece to inputted type and back to the top of the board
         public void ResetPiece(int pieceTypeI, int sideLengthI)
         {
             CurrentLocation = new IntVector2(4, 0);
@@ -254,6 +261,7 @@ namespace MonogameTetris.TetrisLib
             _wasLastWallkickUsed = false;
         }
 
+        //if the piece has clear passage to the roof
         public bool CanSeeRoof(int[,] boardArray, List<int[,]> tetData)
         {
             var pieceShape = tetData[RotState];
